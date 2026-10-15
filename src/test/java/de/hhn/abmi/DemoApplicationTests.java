@@ -1,4 +1,4 @@
-package com.example.demo;
+package de.hhn.abmi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
