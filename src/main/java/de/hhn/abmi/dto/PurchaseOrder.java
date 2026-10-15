@@ -1,4 +1,11 @@
 package de.hhn.abmi.dto;
 
-public class PurchaseOrder {
+import java.math.BigDecimal;
+
+public record PurchaseOrder(
+        String purchaseOrder,
+        String material,
+        String supplier,
+        BigDecimal orderQuantity
+) {
 }

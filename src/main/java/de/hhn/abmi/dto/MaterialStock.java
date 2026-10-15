@@ -1,4 +1,11 @@
 package de.hhn.abmi.dto;
 
-public class MaterialStock {
+import java.math.BigDecimal;
+
+public record MaterialStock(
+        String material,
+        BigDecimal quantity,
+        String unit
+
+) {
 }
