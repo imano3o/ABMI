@@ -1,12 +1,12 @@
-spring:
-  application:
-    name: abmi
-  datasource:
-    url: jdbc:h2:file:./data/abmi;AUTO_SERVER=TRUE
-  jpa:
-    hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
+  spring:
+    application:
+      name: abmi
+    datasource:
+      url: jdbc:h2:file:./data/abmi;AUTO_SERVER=TRUE
+    jpa:
+      hibernate:
+        ddl-auto: create
+      defer-datasource-initialization: true
+    sql:
+      init:
+        mode: always
