@@ -1,3 +1,6 @@
 spring:
+  jpa:
+    defer-datasource-initialization: true
+    
   application:
     name: demo
