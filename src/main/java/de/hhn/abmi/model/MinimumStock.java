@@ -17,5 +17,12 @@ public class MinimumStock {
 
     }
 
+    private String material;
+    private BigDecimal minimumQuantity;
+
+    public Long getId() { return id; }
+    public String getMaterial() { return material; }
+    public BigDecimal getMinimumQuantity() { return minimumQuantity; }
+
 
 }
