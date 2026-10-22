@@ -12,8 +12,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/medications")
 public class MedicationController {
+    private final MedicationService medicationService;
     private final OrderService orderService;
-    private MedicationService medicationService;
 
     public MedicationController(MedicationService medicationService, OrderService orderService) {
         this.medicationService = medicationService;
@@ -31,8 +31,8 @@ public class MedicationController {
     }
 
     @PostMapping("/{material}/consume")
-    public ConsumeResponse consume(@PathVariable String material, @RequestBody ConsumeRequest re) {
-        return medicationService.consume(material, re);
+    public ConsumeResponse consume(@PathVariable String material, @RequestBody ConsumeRequest request) {
+        return medicationService.consume(material, request);
     }
 
     @PostMapping("/{material}/reorder")
