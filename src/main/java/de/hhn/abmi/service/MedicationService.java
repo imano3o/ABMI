@@ -1,23 +1,75 @@
 package de.hhn.abmi.service;
 
 
+import de.hhn.abmi.dto.MaterialStock;
+import de.hhn.abmi.dto.api.MedicationResponse;
+import de.hhn.abmi.dto.api.StockStatus;
 import de.hhn.abmi.model.MinimumStock;
 import de.hhn.abmi.model.MinimumStockRepository;
+import de.hhn.abmi.sap.SapClient;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class MedicationService {
     private final MinimumStockRepository minimumStockRepository;
+    private final SapClient sapClient;
 
 
-    public MedicationService(MinimumStockRepository minimumStockRepository){
+    public MedicationService(MinimumStockRepository minimumStockRepository, SapClient sapClient) {
         this.minimumStockRepository = minimumStockRepository;
+        this.sapClient = sapClient;
     }
 
-    public List<MinimumStock> getMedications(){
-        return minimumStockRepository.findAll();
+    public List<MedicationResponse> getMedications() {
+        List<MedicationResponse> result = new ArrayList<>();
+
+        for (MaterialStock stock : sapClient.getStocks()) {
+
+            // 1. Mindestbestand aus H2 holen
+            BigDecimal minimum = minimumStockRepository.findByMaterial(stock.material()).map(MinimumStock::getMinimumQuantity).orElse(BigDecimal.ZERO);
+
+            // 2. + 3. Berechnungen (kommt in Aufgabe 4c)
+            StockStatus status = calculateStatus(stock.quantity(), minimum);
+            BigDecimal suggested = calculateSuggestedQuantity(stock.quantity(), minimum);
+
+            // 4. Antwort bauen
+
+            result.add(new MedicationResponse(
+                    stock.material(),
+                    stock.name(),
+                    stock.quantity(),
+                    stock.unit(),
+                    minimum,
+                    status,
+                    suggested,
+                    null
+
+            ));
+        }
+
+        return result;
+    }
+
+    private StockStatus calculateStatus(BigDecimal stock, BigDecimal minimum) {
+        BigDecimal half = minimum.divide(BigDecimal.TWO);
+
+        if (stock.compareTo(BigDecimal.ZERO) == 0 || stock.compareTo(half) < 0) {
+            return StockStatus.CRITICAL;
+        }
+        else if (stock.compareTo(minimum) < 0) {
+
+            return StockStatus.LOW;
+        }
+        return StockStatus.OK;
+    }
+
+    private BigDecimal calculateSuggestedQuantity(BigDecimal stock, BigDecimal minimum) {
+
+        return BigDecimal.ZERO;
     }
 
     public MinimumStock getMedication(String material) {
