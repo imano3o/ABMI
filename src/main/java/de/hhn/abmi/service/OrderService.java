@@ -4,6 +4,7 @@ import de.hhn.abmi.dto.MaterialStock;
 import de.hhn.abmi.dto.PurchaseOrder;
 import de.hhn.abmi.dto.api.ReorderRequest;
 import de.hhn.abmi.dto.api.ReorderResponse;
+import de.hhn.abmi.exception.ApiException;
 import de.hhn.abmi.model.OpenOrder;
 import de.hhn.abmi.model.OpenOrderRepository;
 import de.hhn.abmi.sap.SapClient;
@@ -25,17 +26,17 @@ public class OrderService {
 
     public ReorderResponse reorder(String material, ReorderRequest request) {
         // 1. Menge muss > 0 sein
-        if (request.quantity().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Die Bestellmenge muss größer als 0 sein.");
+        if (request.quantity() == null || request.quantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw ApiException.badRequest("Order quantity must be greater than 0.");
         }
 
         // 2. Material bei SAP holen (für Name und Einheit)
         MaterialStock materialStock = sapClient.getStock(material)
-                .orElseThrow(() -> new IllegalArgumentException("Unbekanntes Material: " + material));
+                .orElseThrow(() -> ApiException.notFound("Unknown material: " + material));
 
         // 3. Pro Material darf es nur eine offene Bestellung geben
         if (openOrderRepository.existsById(material)) {
-            throw new IllegalArgumentException("Für " + material + " gibt es bereits eine offene Bestellung.");
+            throw ApiException.conflict("There is already an open order for " + material + ".");
         }
 
         // 4. Bei SAP bestellen
