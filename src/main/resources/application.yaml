@@ -10,3 +10,8 @@
     sql:
       init:
         mode: always
+
+  # SAP-Anbindung: fake = FakeSapClient (ohne Mock), http = HttpSapClient (SAP-Mock muss laufen)
+  sap:
+    mode: fake
+    base-url: http://localhost:8081
