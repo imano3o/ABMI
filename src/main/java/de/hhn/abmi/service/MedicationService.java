@@ -68,8 +68,8 @@ public class MedicationService {
     }
 
     private BigDecimal calculateSuggestedQuantity(BigDecimal stock, BigDecimal minimum) {
-
-        return BigDecimal.ZERO;
+        BigDecimal goal = minimum.multiply(BigDecimal.TWO);
+        return goal.subtract(stock).max(BigDecimal.ZERO);
     }
 
     public MinimumStock getMedication(String material) {
