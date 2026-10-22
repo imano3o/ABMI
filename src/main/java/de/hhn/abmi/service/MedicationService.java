@@ -1,7 +1,10 @@
 package de.hhn.abmi.service;
 
 
+import de.hhn.abmi.dto.MaterialDocument;
 import de.hhn.abmi.dto.MaterialStock;
+import de.hhn.abmi.dto.api.ConsumeRequest;
+import de.hhn.abmi.dto.api.ConsumeResponse;
 import de.hhn.abmi.dto.api.MedicationResponse;
 import de.hhn.abmi.dto.api.StockStatus;
 import de.hhn.abmi.model.MinimumStock;
@@ -75,5 +78,46 @@ public class MedicationService {
     public MinimumStock getMedication(String material) {
         return minimumStockRepository.findByMaterial(material).orElseThrow();
     }
-}
+
+    public ConsumeResponse consume(String material, ConsumeRequest request) {
+        if(request.quantity().compareTo(BigDecimal.ZERO)<= 0) {
+            throw new IllegalArgumentException("Cannot consume 0 material.");
+        }
+        // 2. Bestand von SAP holen
+        MaterialStock materialStock =
+                sapClient.getStock(material).orElseThrow(()-> new IllegalArgumentException("Unknown material: " + material));
+
+        // 3. Menge darf nicht größer als der Bestand sein
+        if (request.quantity().compareTo(materialStock.quantity()) > 0) {
+            throw new IllegalArgumentException("Request Quantity is larger than existing stock.");
+        }
+        // 4. note kürzen
+        String note = request.note();
+        if(note != null && note.length()> 25){
+            note = note.substring(0,25);
+        }
+        // 5. SAP buchen
+        MaterialDocument document = sapClient.postConsumption(material, request.quantity(), note);
+
+        // 6. Antwort bauen
+        BigDecimal remainingStock = materialStock.quantity().subtract(request.quantity());
+        BigDecimal minimum = minimumStockRepository.findByMaterial(material)
+                .map(MinimumStock::getMinimumQuantity)
+                .orElse(BigDecimal.ZERO);
+        StockStatus status = calculateStatus(remainingStock, minimum);
+
+        return new ConsumeResponse(
+                document.materialDocument(),
+                String.valueOf(document.postingDate().getYear()),
+                material,
+                request.quantity(),
+                materialStock.unit(),
+                document.postingDate(),
+                remainingStock,
+                status
+        );
+    }
+
+    }
+
 
