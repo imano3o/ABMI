@@ -10,14 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Ersatz für SAP, solange der SAP-Mock nicht läuft.
+ * Ersatz für SAP, solange der SAP-Mock nicht läuft (sap.mode: fake oder nicht gesetzt).
  * Hält die Bestände nur im Speicher: Nach jedem Neustart sind die Startwerte wieder da.
  * Prüft nichts (z. B. ob genug Bestand da ist) – das ist Aufgabe des Services.
  */
 @Component
+@ConditionalOnProperty(name = "sap.mode", havingValue = "fake", matchIfMissing = true)
 public class FakeSapClient implements SapClient {
 
     private static final String SUPPLIER = "17300001";
