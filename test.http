@@ -36,3 +36,33 @@ POST http://localhost:8080/api/medications/MED-GIBTSNICHT/consume
 Content-Type: application/json
 
 { "quantity": 1 }
+
+### ❌ Ohne quantity
+POST http://localhost:8080/api/medications/MED-ENOX40/consume
+Content-Type: application/json
+
+{ "note": "nur Notiz" }
+
+### ✅ Nachbestellen → 201
+POST http://localhost:8080/api/medications/MED-ENOX40/reorder
+Content-Type: application/json
+
+{ "quantity": 14 }
+
+### ❌ Nochmal nachbestellen → 409 (schon offen)
+POST http://localhost:8080/api/medications/MED-ENOX40/reorder
+Content-Type: application/json
+
+{ "quantity": 14 }
+
+### ❌ Nachbestellen mit Menge 0 → 400
+POST http://localhost:8080/api/medications/MED-ONDAN4/reorder
+Content-Type: application/json
+
+{ "quantity": 0 }
+
+### ❌ Nachbestellen unbekanntes Material → 404
+POST http://localhost:8080/api/medications/MED-GIBTSNICHT/reorder
+Content-Type: application/json
+
+{ "quantity": 5 }
