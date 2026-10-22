@@ -1,10 +1,10 @@
 package de.hhn.abmi.controller;
 
-import de.hhn.abmi.dto.api.ConsumeRequest;
-import de.hhn.abmi.dto.api.ConsumeResponse;
-import de.hhn.abmi.dto.api.MedicationResponse;
+import de.hhn.abmi.dto.api.*;
 import de.hhn.abmi.model.MinimumStock;
 import de.hhn.abmi.service.MedicationService;
+import de.hhn.abmi.service.OrderService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,10 +12,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/medications")
 public class MedicationController {
+    private final OrderService orderService;
     private MedicationService medicationService;
 
-    public MedicationController(MedicationService medicationService) {
+    public MedicationController(MedicationService medicationService, OrderService orderService) {
         this.medicationService = medicationService;
+        this.orderService = orderService;
     }
 
     @GetMapping
@@ -33,6 +35,12 @@ public class MedicationController {
         return medicationService.consume(material, re);
     }
 
+    @PostMapping("/{material}/reorder")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReorderResponse reorder(@PathVariable String material, @RequestBody ReorderRequest request) {
+        return orderService.reorder(material, request);
+
+    }
 }
 
 
