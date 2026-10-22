@@ -1,4 +1,7 @@
 package de.hhn.abmi.model;
 
-public interface OpenOrderRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OpenOrderRepository extends JpaRepository<OpenOrder, String> {
+
 }
