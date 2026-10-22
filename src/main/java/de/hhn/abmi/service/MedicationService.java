@@ -7,6 +7,7 @@ import de.hhn.abmi.dto.api.ConsumeRequest;
 import de.hhn.abmi.dto.api.ConsumeResponse;
 import de.hhn.abmi.dto.api.MedicationResponse;
 import de.hhn.abmi.dto.api.StockStatus;
+import de.hhn.abmi.exception.ApiException;
 import de.hhn.abmi.model.MinimumStock;
 import de.hhn.abmi.model.MinimumStockRepository;
 import de.hhn.abmi.sap.SapClient;
@@ -76,20 +77,23 @@ public class MedicationService {
     }
 
     public MinimumStock getMedication(String material) {
-        return minimumStockRepository.findByMaterial(material).orElseThrow();
+        return minimumStockRepository.findByMaterial(material)
+                .orElseThrow(() -> ApiException.notFound("Unknown material: " + material));
     }
 
     public ConsumeResponse consume(String material, ConsumeRequest request) {
-        if(request.quantity().compareTo(BigDecimal.ZERO)<= 0) {
-            throw new IllegalArgumentException("Cannot consume 0 material.");
+        // 1. Menge muss angegeben und > 0 sein
+        if (request.quantity() == null || request.quantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw ApiException.badRequest("Quantity must be greater than 0.");
         }
         // 2. Bestand von SAP holen
-        MaterialStock materialStock =
-                sapClient.getStock(material).orElseThrow(()-> new IllegalArgumentException("Unknown material: " + material));
+        MaterialStock materialStock = sapClient.getStock(material)
+                .orElseThrow(() -> ApiException.notFound("Unknown material: " + material));
 
         // 3. Menge darf nicht größer als der Bestand sein
         if (request.quantity().compareTo(materialStock.quantity()) > 0) {
-            throw new IllegalArgumentException("Request Quantity is larger than existing stock.");
+            throw ApiException.badRequest("Not enough stock: " + materialStock.quantity() + " " + materialStock.unit()
+                    + " available, " + request.quantity() + " requested.");
         }
         // 4. note kürzen
         String note = request.note();
