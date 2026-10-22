@@ -13,7 +13,7 @@ public record MedicationResponse(
         BigDecimal minimumStock,
         StockStatus status,
         BigDecimal suggestedOrderQuantity,
-        Object openOrder
+        OpenOrderResponse openOrder
 
 ) {
 

@@ -6,10 +6,12 @@ import de.hhn.abmi.dto.MaterialStock;
 import de.hhn.abmi.dto.api.ConsumeRequest;
 import de.hhn.abmi.dto.api.ConsumeResponse;
 import de.hhn.abmi.dto.api.MedicationResponse;
+import de.hhn.abmi.dto.api.OpenOrderResponse;
 import de.hhn.abmi.dto.api.StockStatus;
 import de.hhn.abmi.exception.ApiException;
 import de.hhn.abmi.model.MinimumStock;
 import de.hhn.abmi.model.MinimumStockRepository;
+import de.hhn.abmi.model.OpenOrderRepository;
 import de.hhn.abmi.sap.SapClient;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +22,15 @@ import java.util.List;
 @Service
 public class MedicationService {
     private final MinimumStockRepository minimumStockRepository;
+    private final OpenOrderRepository openOrderRepository;
     private final SapClient sapClient;
 
 
-    public MedicationService(MinimumStockRepository minimumStockRepository, SapClient sapClient) {
+    public MedicationService(MinimumStockRepository minimumStockRepository,
+                             OpenOrderRepository openOrderRepository,
+                             SapClient sapClient) {
         this.minimumStockRepository = minimumStockRepository;
+        this.openOrderRepository = openOrderRepository;
         this.sapClient = sapClient;
     }
 
@@ -40,8 +46,12 @@ public class MedicationService {
             StockStatus status = calculateStatus(stock.quantity(), minimum);
             BigDecimal suggested = calculateSuggestedQuantity(stock.quantity(), minimum);
 
-            // 4. Antwort bauen
+            // 4. Offene Bestellung (oder null, wenn es keine gibt)
+            OpenOrderResponse openOrder = openOrderRepository.findById(stock.material())
+                    .map(order -> new OpenOrderResponse(order.getPurchaseOrder(), order.getQuantity(), order.getOrderedAt()))
+                    .orElse(null);
 
+            // 5. Antwort bauen
             result.add(new MedicationResponse(
                     stock.material(),
                     stock.name(),
@@ -50,8 +60,7 @@ public class MedicationService {
                     minimum,
                     status,
                     suggested,
-                    null
-
+                    openOrder
             ));
         }
 
@@ -126,6 +135,4 @@ public class MedicationService {
         );
     }
 
-    }
-
-
+}
