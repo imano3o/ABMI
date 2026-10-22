@@ -34,9 +34,9 @@ public class MedicationService {
         for (MaterialStock stock : sapClient.getStocks()) {
 
             // 1. Mindestbestand aus H2 holen
-            BigDecimal minimum = minimumStockRepository.findByMaterial(stock.material()).map(MinimumStock::getMinimumQuantity).orElse(BigDecimal.ZERO);
+            BigDecimal minimum = getMinimum(stock.material());
 
-            // 2. + 3. Berechnungen (kommt in Aufgabe 4c)
+            // 2. + 3. Berechnungen
             StockStatus status = calculateStatus(stock.quantity(), minimum);
             BigDecimal suggested = calculateSuggestedQuantity(stock.quantity(), minimum);
 
@@ -56,6 +56,13 @@ public class MedicationService {
         }
 
         return result;
+    }
+
+    /** Mindestbestand aus H2, 0 falls keiner hinterlegt ist. */
+    private BigDecimal getMinimum(String material) {
+        return minimumStockRepository.findByMaterial(material)
+                .map(MinimumStock::getMinimumQuantity)
+                .orElse(BigDecimal.ZERO);
     }
 
     private StockStatus calculateStatus(BigDecimal stock, BigDecimal minimum) {
@@ -105,10 +112,7 @@ public class MedicationService {
 
         // 6. Antwort bauen
         BigDecimal remainingStock = materialStock.quantity().subtract(request.quantity());
-        BigDecimal minimum = minimumStockRepository.findByMaterial(material)
-                .map(MinimumStock::getMinimumQuantity)
-                .orElse(BigDecimal.ZERO);
-        StockStatus status = calculateStatus(remainingStock, minimum);
+        StockStatus status = calculateStatus(remainingStock, getMinimum(material));
 
         return new ConsumeResponse(
                 document.materialDocument(),
