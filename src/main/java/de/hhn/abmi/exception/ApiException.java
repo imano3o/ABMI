@@ -27,9 +27,4 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.NOT_FOUND, message);
     }
 
-    /** 409 – es gibt bereits eine offene Bestellung */
-    public static ApiException conflict(String message) {
-        return new ApiException(HttpStatus.CONFLICT, message);
-    }
-
 }
