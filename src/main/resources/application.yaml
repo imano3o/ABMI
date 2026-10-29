@@ -1,17 +1,18 @@
-  spring:
-    application:
-      name: abmi
-    datasource:
-      url: jdbc:h2:file:./data/abmi;AUTO_SERVER=TRUE
-    jpa:
-      hibernate:
-        ddl-auto: create
-      defer-datasource-initialization: true
-    sql:
-      init:
-        mode: always
+spring:
+  application:
+    name: abmi
+  datasource:
+    url: jdbc:h2:file:./data/abmi;AUTO_SERVER=TRUE
+  jpa:
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
 
-  # SAP-Anbindung: fake = FakeSapClient (ohne Mock), http = HttpSapClient (SAP-Mock muss laufen)
-  sap:
-    mode: fake
-    base-url: http://localhost:8081
+# SAP-Anbindung: fake = FakeSapClient (ohne Mock), http = HttpSapClient (SAP-Mock muss laufen)
+# Werk, Lagerort und Kostenstelle stehen als Stammdaten in der Datenbank (data.sql)
+sap:
+  mode: http
+  base-url: http://localhost:8081
