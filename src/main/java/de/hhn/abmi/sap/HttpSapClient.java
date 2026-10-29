@@ -18,13 +18,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 /** Reads stocks from and books consumption in the SAP mock over HTTP. */
 @Component
-@ConditionalOnProperty(name = "sap.mode", havingValue = "http")
 public class HttpSapClient implements SapClient {
 
     private static final String STOCK_URI = "/sap/opu/odata/sap/API_MATERIAL_STOCK_SRV/A_MatlStkInAcctMod";

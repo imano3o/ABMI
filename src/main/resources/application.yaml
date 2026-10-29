@@ -11,7 +11,5 @@ spring:
     init:
       mode: always
 
-# fake: works without the SAP mock, http: needs the SAP mock running
 sap:
-  mode: http
   base-url: http://localhost:8081

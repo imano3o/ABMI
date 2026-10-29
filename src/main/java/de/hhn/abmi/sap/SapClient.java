@@ -8,7 +8,7 @@ import java.util.Optional;
 
 /**
  * Everything our app needs from SAP.
- * Services only know this interface, so FakeSapClient and HttpSapClient are interchangeable.
+ * Services only know this interface, not how SAP is called.
  */
 public interface SapClient {
 
