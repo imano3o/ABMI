@@ -3,7 +3,11 @@ package de.hhn.abmi.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** A booked consumption in our own format, so the services do not depend on SAP. */
+/**
+ * A booked consumption in our own simple format.
+ * SapClient returns this instead of SAP's raw data,
+ * so the services never need to know SAP's field names.
+ */
 public record MaterialDocument(
         String materialDocument,
         LocalDate postingDate,
