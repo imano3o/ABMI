@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediFlow</title>
+    <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+<header>
+    <div>
+        <h1>MediFlow</h1>
+        <p class="subtitle" id="hospital">Krankenhaus nicht hinterlegt</p>
+    </div>
+    <div class="header-actions">
+        <select id="station" aria-label="Station"></select>
+        <button id="reload" class="secondary" type="button">Aktualisieren</button>
+    </div>
+</header>
+
+<main>
+    <div id="message" class="message" hidden></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Medikament</th>
+            <th class="num">Bestand</th>
+            <th class="num">Minimum</th>
+            <th>Status</th>
+            <th>Verbrauchen</th>
+        </tr>
+        </thead>
+        <tbody id="medications">
+        <tr><td colspan="5" class="empty">Lade Daten …</td></tr>
+        </tbody>
+    </table>
+</main>
+
+<script src="app.js?v=4"></script>
+</body>
+</html>
