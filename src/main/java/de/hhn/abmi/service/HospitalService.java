@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/** Reads the hospital from the database. */
+/**
+ * Access to the hospital master data.
+ */
 @Service
 public class HospitalService {
     private final HospitalRepository hospitalRepository;
@@ -16,7 +18,11 @@ public class HospitalService {
         this.hospitalRepository = hospitalRepository;
     }
 
-    /** name is null if the hospital table is empty. */
+    /**
+     * Returns the hospital for the frontend.
+     *
+     * @return the hospital; its name is {@code null} if none is configured
+     */
     public HospitalResponse getHospital() {
         String name = findHospital()
                 .map(Hospital::getName)
@@ -24,14 +30,19 @@ public class HospitalService {
         return new HospitalResponse(name);
     }
 
-    /** Fails if no hospital is configured, because every SAP call needs a plant. */
+    /**
+     * Returns the SAP plant of the hospital.
+     *
+     * @return the plant
+     * @throws IllegalStateException if no hospital is configured, because no SAP call works without a plant
+     */
     public String requirePlant() {
         return findHospital()
                 .map(Hospital::getPlant)
                 .orElseThrow(() -> new IllegalStateException("No hospital in table 'hospital' (see data.sql)."));
     }
 
-    /** The table holds exactly one hospital. */
+    /** Returns the only hospital; the table holds exactly one row. */
     private Optional<Hospital> findHospital() {
         return hospitalRepository.findAll().stream().findFirst();
     }

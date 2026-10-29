@@ -21,7 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-/** Reads stocks from and books consumption in the SAP mock over HTTP. */
+/**
+ * {@link SapClient} that calls the SAP mock over HTTP (OData v2).
+ */
 @Component
 public class HttpSapClient implements SapClient {
 
@@ -103,7 +105,15 @@ public class HttpSapClient implements SapClient {
         );
     }
 
-    /** Converts SAP's OData date into a LocalDate. */
+    /**
+     * Converts SAP's OData date, e.g. {@code /Date(1792108800000)/}, into a {@link LocalDate}.
+     *
+     * <p>Falls back to today if the value is missing or unreadable,
+     * because the booking itself has already succeeded at this point.
+     *
+     * @param value date as sent by SAP, may be {@code null}
+     * @return the posting date
+     */
     private static LocalDate parseODataDate(String value) {
         if (value == null) {
             return LocalDate.now();

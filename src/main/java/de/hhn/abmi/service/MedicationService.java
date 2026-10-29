@@ -17,7 +17,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Combines the stock from SAP with the minimum stock from H2. */
+/**
+ * Business logic for medications.
+ *
+ * <p>Combines the stock from SAP with the minimum stock from our database.
+ */
 @Service
 public class MedicationService {
     private final MinimumStockRepository minimumStockRepository;
@@ -32,7 +36,13 @@ public class MedicationService {
         this.stationService = stationService;
     }
 
-    /** Stock from SAP plus minimum stock and status for each medication of the station. */
+    /**
+     * Returns all medications of a station with stock, minimum stock and status.
+     *
+     * @param station station code
+     * @return one entry per material that SAP has at the station
+     * @throws ApiException with status 404 if the station does not exist
+     */
     public List<MedicationResponse> getMedications(String station) {
         SapLocation location = stationService.sapLocationOf(station);
         List<MedicationResponse> result = new ArrayList<>();
@@ -56,7 +66,7 @@ public class MedicationService {
         return result;
     }
 
-    /** 0 if no minimum stock is configured. */
+    /** Returns the minimum stock, or {@code 0} if none is configured. */
     private BigDecimal getMinimum(String station, String material) {
         return minimumStockRepository.findByStationAndMaterial(station, material)
                 .map(MinimumStock::getMinimumQuantity)
@@ -74,12 +84,29 @@ public class MedicationService {
         return StockStatus.OK;
     }
 
+    /**
+     * Returns the stored minimum stock of a medication.
+     *
+     * @param station  station code
+     * @param material material number
+     * @return the minimum stock entry
+     * @throws ApiException with status 404 if no minimum stock is configured
+     */
     public MinimumStock getMedication(String station, String material) {
         return minimumStockRepository.findByStationAndMaterial(station, material)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
     }
 
-    /** Checks the request, books it in SAP and returns the new stock. */
+    /**
+     * Books the consumption of a medication in SAP.
+     *
+     * @param station  station code
+     * @param material material number
+     * @param request  quantity and optional note
+     * @return the booked document with the remaining stock and its status
+     * @throws ApiException with status 400 if the quantity is missing, not positive or larger than the stock,
+     *                      and with status 404 if the station or material is unknown
+     */
     public ConsumeResponse consume(String station, String material, ConsumeRequest request) {
         SapLocation location = stationService.sapLocationOf(station);
 

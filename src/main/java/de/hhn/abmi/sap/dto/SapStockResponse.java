@@ -1,6 +1,6 @@
 package de.hhn.abmi.sap.dto;
 
-/** OData v2 wraps every response in an object with a d field. */
+/** OData v2 wrapper around the stock list (field {@code d}). */
 public record SapStockResponse(
         SapStockResults d
 ) {

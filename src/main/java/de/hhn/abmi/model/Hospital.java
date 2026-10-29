@@ -3,7 +3,11 @@ package de.hhn.abmi.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
-/** The hospital using the app. In SAP it is a plant. */
+/**
+ * Hospital that uses the app.
+ *
+ * <p>In SAP the hospital is a plant, so {@code plant} is part of every SAP call.
+ */
 @Entity
 public class Hospital {
 

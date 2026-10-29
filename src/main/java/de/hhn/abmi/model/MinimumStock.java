@@ -6,7 +6,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 
-/** Minimum stock of a material on a station. Only this is stored in our database, the current stock comes from SAP. */
+/**
+ * Minimum stock of a material on a station.
+ *
+ * <p>Only the minimum is stored in our database; the current stock always comes from SAP.
+ */
 @Entity
 public class MinimumStock {
 

@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Provides the hospital name for the frontend header. */
+/**
+ * REST endpoint for the hospital shown in the frontend header.
+ */
 @RestController
 @RequestMapping("/api/hospital")
 public class HospitalController {
@@ -16,6 +18,11 @@ public class HospitalController {
         this.hospitalService = hospitalService;
     }
 
+    /**
+     * Returns the hospital.
+     *
+     * @return the hospital; its name is {@code null} if none is configured
+     */
     @GetMapping
     public HospitalResponse getHospital() {
         return hospitalService.getHospital();

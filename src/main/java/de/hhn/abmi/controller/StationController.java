@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** Lists the stations the user can choose from. */
+/**
+ * REST endpoint for the station selection.
+ */
 @RestController
 @RequestMapping("/api/stations")
 public class StationController {
@@ -18,6 +20,11 @@ public class StationController {
         this.stationService = stationService;
     }
 
+    /**
+     * Returns all stations sorted by code.
+     *
+     * @return all stations
+     */
     @GetMapping
     public List<StationResponse> getStations() {
         return stationService.getStations();

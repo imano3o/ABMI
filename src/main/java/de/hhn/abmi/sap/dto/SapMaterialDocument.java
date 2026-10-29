@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Material document header as SAP expects it.
- * Used for request and response: SAP sets number, year and posting date.
+ * Material document header in SAP's format.
+ *
+ * <p>Used for both request and response; SAP fills in number, year and posting date.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
