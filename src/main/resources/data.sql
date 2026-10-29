@@ -1,8 +1,7 @@
--- Exactly one hospital; plant = SAP plant. The name is a placeholder.
+-- Exactly one hospital. The name is a placeholder.
 INSERT INTO hospital (plant, name) VALUES
     ('1710', 'Klinikum Musterstadt');
 
--- code = SAP storage location, cost_center = SAP cost center
 INSERT INTO station (code, name, cost_center) VALUES
     ('ST01', 'Station 1 – Chirurgie',      '17101101'),
     ('ST02', 'Station 2 – Kardiologie',    '17101201'),

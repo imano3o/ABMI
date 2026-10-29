@@ -1,6 +1,6 @@
 package de.hhn.abmi.dto.api;
 
-/** Error format shared by all endpoints (see API.md, section 4). */
+/** Same error format for all endpoints, so the frontend can always show the message. */
 public record ErrorResponse(
         int status,
         String message

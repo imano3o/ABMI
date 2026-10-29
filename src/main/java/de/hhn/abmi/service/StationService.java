@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/** Reads the stations and their SAP master data from the database. */
 @Service
 public class StationService {
     private final StationRepository stationRepository;
@@ -30,6 +31,7 @@ public class StationService {
                 .orElseThrow(() -> ApiException.notFound("Unknown station: " + code));
     }
 
+    /** Where SAP calls for this station read and book. */
     public SapLocation sapLocationOf(String code) {
         Station station = requireStation(code);
         return new SapLocation(hospitalService.requirePlant(), station.getCode(), station.getCostCenter());

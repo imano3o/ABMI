@@ -17,7 +17,7 @@ public interface SapClient {
     /** Empty if SAP does not know the material at this location. */
     Optional<MaterialStock> getStock(String material, SapLocation location);
 
-    /** Posts a material document (movement type 201) to the cost center of the location. */
+    /** Books a consumption and charges it to the cost center of the location. */
     MaterialDocument postConsumption(String material, BigDecimal quantity, String note, SapLocation location);
 
 }

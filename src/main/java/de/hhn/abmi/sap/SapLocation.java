@@ -1,8 +1,8 @@
 package de.hhn.abmi.sap;
 
 /**
- * plant comes from the hospital, storage location and cost center from the station.
- * Always built from the master data in H2, never from frontend input.
+ * Where to read and book in SAP. Built from our master data, never from user input,
+ * so nobody can book on another station's cost center.
  */
 public record SapLocation(
         String plant,

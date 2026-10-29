@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 
-/** The current stock lives in SAP, only the minimum stock is stored in our database. */
+/** Minimum stock of a material on a station. Only this is stored in our database, the current stock comes from SAP. */
 @Entity
 public class MinimumStock {
 
@@ -17,7 +17,7 @@ public class MinimumStock {
     private String material;
     private BigDecimal minimumQuantity;
 
-    /** Required by JPA to load rows from the database. */
+    /** Required by JPA. */
     protected MinimumStock() {
     }
 

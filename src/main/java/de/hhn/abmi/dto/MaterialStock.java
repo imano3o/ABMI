@@ -2,7 +2,7 @@ package de.hhn.abmi.dto;
 
 import java.math.BigDecimal;
 
-/** Our own type, so the services do not depend on the SAP format. */
+/** Stock of one material in our own format, so the services do not depend on SAP. */
 public record MaterialStock(
         String material,
         String name,

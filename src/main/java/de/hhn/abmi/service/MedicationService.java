@@ -32,6 +32,7 @@ public class MedicationService {
         this.stationService = stationService;
     }
 
+    /** Stock from SAP plus minimum stock and status for each medication of the station. */
     public List<MedicationResponse> getMedications(String station) {
         SapLocation location = stationService.sapLocationOf(station);
         List<MedicationResponse> result = new ArrayList<>();
@@ -55,7 +56,7 @@ public class MedicationService {
         return result;
     }
 
-    /** 0 if no minimum stock is configured for this station. */
+    /** 0 if no minimum stock is configured. */
     private BigDecimal getMinimum(String station, String material) {
         return minimumStockRepository.findByStationAndMaterial(station, material)
                 .map(MinimumStock::getMinimumQuantity)
@@ -78,6 +79,7 @@ public class MedicationService {
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
     }
 
+    /** Checks the request, books it in SAP and returns the new stock. */
     public ConsumeResponse consume(String station, String material, ConsumeRequest request) {
         SapLocation location = stationService.sapLocationOf(station);
 

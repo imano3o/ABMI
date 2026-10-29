@@ -4,8 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 /**
- * code is also the SAP storage location, e.g. "ST03".
- * Consumption is charged to costCenter in SAP.
+ * A station of the hospital. code is also its SAP storage location,
+ * consumption is charged to its costCenter.
  */
 @Entity
 public class Station {

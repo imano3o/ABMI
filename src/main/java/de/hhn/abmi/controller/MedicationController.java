@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/** Shows the medications of a station and books their consumption. */
 @RestController
 @RequestMapping("/api/medications")
 public class MedicationController {

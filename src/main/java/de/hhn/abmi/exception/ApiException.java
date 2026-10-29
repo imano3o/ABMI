@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * Business error with an HTTP status.
- * The message is shown to the user in the frontend as it is.
+ * The message is shown to the user as it is.
  */
 public class ApiException extends RuntimeException {
 

@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-/** Calls the SAP mock over HTTP (sap.mode: http). */
+/** Reads stocks from and books consumption in the SAP mock over HTTP. */
 @Component
 @ConditionalOnProperty(name = "sap.mode", havingValue = "http")
 public class HttpSapClient implements SapClient {
@@ -105,7 +105,7 @@ public class HttpSapClient implements SapClient {
         );
     }
 
-    /** Parses the OData date format "/Date(1792108800000)/". */
+    /** Converts SAP's OData date into a LocalDate. */
     private static LocalDate parseODataDate(String value) {
         if (value == null) {
             return LocalDate.now();

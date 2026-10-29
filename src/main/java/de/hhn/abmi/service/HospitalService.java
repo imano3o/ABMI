@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/** Reads the hospital from the database. */
 @Service
 public class HospitalService {
     private final HospitalRepository hospitalRepository;
@@ -23,6 +24,7 @@ public class HospitalService {
         return new HospitalResponse(name);
     }
 
+    /** Fails if no hospital is configured, because every SAP call needs a plant. */
     public String requirePlant() {
         return findHospital()
                 .map(Hospital::getPlant)

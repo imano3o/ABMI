@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/** Lists the stations the user can choose from. */
 @RestController
 @RequestMapping("/api/stations")
 public class StationController {

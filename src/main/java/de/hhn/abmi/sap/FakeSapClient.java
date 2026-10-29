@@ -13,9 +13,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Stands in for SAP when the SAP mock is not running (sap.mode: fake or not set).
+ * Stands in for SAP when the SAP mock is not running.
  * Stocks are kept in memory only, so every restart resets them.
- * Checks nothing (e.g. enough stock), that is the service's job.
+ * Checks nothing, that is the service's job.
  */
 @Component
 @ConditionalOnProperty(name = "sap.mode", havingValue = "fake", matchIfMissing = true)

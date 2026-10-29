@@ -11,7 +11,7 @@ spring:
     init:
       mode: always
 
-# fake = FakeSapClient (no SAP mock needed), http = HttpSapClient (SAP mock must be running)
+# fake: works without the SAP mock, http: needs the SAP mock running
 sap:
   mode: http
   base-url: http://localhost:8081

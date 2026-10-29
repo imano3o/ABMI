@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 
 /**
- * Turns exceptions from all controllers into the error format from API.md:
- * { "status": 400, "message": "..." }
+ * Turns exceptions from all controllers into an ErrorResponse,
+ * so the frontend gets a readable message instead of a stack trace.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

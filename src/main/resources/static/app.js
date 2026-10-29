@@ -1,5 +1,5 @@
 // MediFlow frontend without a framework.
-// Talks only to our own REST API (see API.md), never to SAP.
+// Talks only to our own REST API, never to SAP.
 
 const API = "/api/medications";
 
@@ -20,7 +20,7 @@ function withStation(url) {
 
 // ---------- Helpers ----------
 
-/** On errors, throws with the message from the { status, message } response. */
+/** Calls the API. On errors, throws with the message from the server. */
 async function request(url, options = {}) {
     let response;
     try {
