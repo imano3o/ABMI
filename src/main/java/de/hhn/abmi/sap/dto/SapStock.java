@@ -2,10 +2,7 @@ package de.hhn.abmi.sap.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Ein Bestandseintrag (A_MatlStkInAcctMod) im SAP-Format.
- * SAP überträgt Mengen als String.
- */
+/** SAP entity A_MatlStkInAcctMod. SAP sends quantities as strings. */
 public record SapStock(
         @JsonProperty("Material") String material,
         @JsonProperty("Plant") String plant,

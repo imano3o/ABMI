@@ -2,7 +2,7 @@ package de.hhn.abmi.sap.dto;
 
 import java.util.List;
 
-/** Der Teil { "results": [...] } einer OData-Liste. */
+/** OData wraps lists in { "results": [...] }. */
 public record SapStockResults(
         List<SapStock> results
 ) {

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** Endpunkt für die Stationen (Auswahlliste im Frontend). */
 @RestController
 @RequestMapping("/api/stations")
 public class StationController {
@@ -18,7 +17,6 @@ public class StationController {
         this.stationService = stationService;
     }
 
-    /** GET /api/stations – alle Stationen, sortiert nach Code. */
     @GetMapping
     public List<StationResponse> getStations() {
         return stationService.getStations();

@@ -1,8 +1,8 @@
 package de.hhn.abmi.sap;
 
 /**
- * Wo in SAP gebucht wird: Werk (Krankenhaus), Lagerort (Station) und Kostenstelle (Station).
- * Kommt aus den Stammdaten in H2, nicht aus dem Frontend.
+ * plant comes from the hospital, storage location and cost center from the station.
+ * Always built from the master data in H2, never from frontend input.
  */
 public record SapLocation(
         String plant,

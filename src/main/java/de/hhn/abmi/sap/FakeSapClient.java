@@ -13,15 +13,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Ersatz für SAP, solange der SAP-Mock nicht läuft (sap.mode: fake oder nicht gesetzt).
- * Hält die Bestände pro Lagerort nur im Speicher: Nach jedem Neustart sind die Startwerte wieder da.
- * Prüft nichts (z. B. ob genug Bestand da ist) – das ist Aufgabe des Services.
+ * Stands in for SAP when the SAP mock is not running (sap.mode: fake or not set).
+ * Stocks are kept in memory only, so every restart resets them.
+ * Checks nothing (e.g. enough stock), that is the service's job.
  */
 @Component
 @ConditionalOnProperty(name = "sap.mode", havingValue = "fake", matchIfMissing = true)
 public class FakeSapClient implements SapClient {
 
-    /** Lagerort → (Material → Bestand) */
+    /** storage location -> (material -> stock) */
     private final Map<String, Map<String, MaterialStock>> stocks = new LinkedHashMap<>();
     private final AtomicLong nextMaterialDocument = new AtomicLong(4900000001L);
 

@@ -25,13 +25,11 @@ public class StationService {
                 .toList();
     }
 
-    /** Prüft, ob es die Station gibt; sonst 404. */
     public Station requireStation(String code) {
         return stationRepository.findById(code)
                 .orElseThrow(() -> ApiException.notFound("Unknown station: " + code));
     }
 
-    /** Wo in SAP für diese Station gelesen und gebucht wird (Werk, Lagerort, Kostenstelle). */
     public SapLocation sapLocationOf(String code) {
         Station station = requireStation(code);
         return new SapLocation(hospitalService.requirePlant(), station.getCode(), station.getCostCenter());

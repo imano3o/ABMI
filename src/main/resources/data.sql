@@ -1,15 +1,13 @@
--- Krankenhaus: plant = SAP-Werk (genau ein Eintrag)
--- Name ist ein Platzhalter, bitte durch den echten Namen ersetzen
+-- Exactly one hospital; plant = SAP plant. The name is a placeholder.
 INSERT INTO hospital (plant, name) VALUES
     ('1710', 'Klinikum Musterstadt');
 
--- Stationen: code = SAP-Lagerort (StorageLocation), cost_center = SAP-Kostenstelle
+-- code = SAP storage location, cost_center = SAP cost center
 INSERT INTO station (code, name, cost_center) VALUES
     ('ST01', 'Station 1 – Chirurgie',      '17101101'),
     ('ST02', 'Station 2 – Kardiologie',    '17101201'),
     ('ST03', 'Station 3 – Innere Medizin', '17101301');
 
--- Mindestbestände pro Station
 INSERT INTO minimum_stock (station, material, minimum_quantity) VALUES
     ('ST01', 'MED-PCM500', 100),
     ('ST01', 'MED-MORPH10', 20),

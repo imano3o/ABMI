@@ -11,8 +11,7 @@ spring:
     init:
       mode: always
 
-# SAP-Anbindung: fake = FakeSapClient (ohne Mock), http = HttpSapClient (SAP-Mock muss laufen)
-# Werk, Lagerort und Kostenstelle stehen als Stammdaten in der Datenbank (data.sql)
+# fake = FakeSapClient (no SAP mock needed), http = HttpSapClient (SAP mock must be running)
 sap:
   mode: http
   base-url: http://localhost:8081

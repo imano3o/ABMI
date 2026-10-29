@@ -2,7 +2,7 @@ package de.hhn.abmi.dto;
 
 import java.math.BigDecimal;
 
-/** Bestand eines Materials, wie unsere App ihn intern nutzt (unabhängig vom SAP-Format). */
+/** Our own type, so the services do not depend on the SAP format. */
 public record MaterialStock(
         String material,
         String name,

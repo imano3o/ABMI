@@ -17,9 +17,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Fachlogik für Medikamente: verbindet den Bestand aus SAP mit dem Mindestbestand aus H2.
- */
+/** Combines the stock from SAP with the minimum stock from H2. */
 @Service
 public class MedicationService {
     private final MinimumStockRepository minimumStockRepository;
@@ -34,20 +32,16 @@ public class MedicationService {
         this.stationService = stationService;
     }
 
-    /** Alle Medikamente der Station mit Bestand, Mindestbestand und Status. */
     public List<MedicationResponse> getMedications(String station) {
         SapLocation location = stationService.sapLocationOf(station);
         List<MedicationResponse> result = new ArrayList<>();
 
         for (MaterialStock stock : sapClient.getStocks(location)) {
 
-            // 1. Mindestbestand aus H2 holen
             BigDecimal minimum = getMinimum(station, stock.material());
 
-            // 2. Status berechnen
             StockStatus status = calculateStatus(stock.quantity(), minimum);
 
-            // 3. Antwort bauen
             result.add(new MedicationResponse(
                     stock.material(),
                     stock.name(),
@@ -61,14 +55,13 @@ public class MedicationService {
         return result;
     }
 
-    /** Mindestbestand der Station aus H2, 0 falls keiner hinterlegt ist. */
+    /** 0 if no minimum stock is configured for this station. */
     private BigDecimal getMinimum(String station, String material) {
         return minimumStockRepository.findByStationAndMaterial(station, material)
                 .map(MinimumStock::getMinimumQuantity)
                 .orElse(BigDecimal.ZERO);
     }
 
-    /** CRITICAL bei 0 oder unter der Hälfte des Minimums, LOW unter dem Minimum, sonst OK. */
     private StockStatus calculateStatus(BigDecimal stock, BigDecimal minimum) {
         BigDecimal half = minimum.divide(BigDecimal.TWO);
 
@@ -80,38 +73,32 @@ public class MedicationService {
         return StockStatus.OK;
     }
 
-    /** Mindestbestand-Eintrag aus H2; 404, wenn es keinen für diese Station gibt. */
     public MinimumStock getMedication(String station, String material) {
         return minimumStockRepository.findByStationAndMaterial(station, material)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
     }
 
-    /** Prüft die Menge, bucht den Verbrauch in SAP und gibt den neuen Bestand zurück. */
     public ConsumeResponse consume(String station, String material, ConsumeRequest request) {
         SapLocation location = stationService.sapLocationOf(station);
 
-        // 1. Menge muss angegeben und > 0 sein
         if (request.quantity() == null || request.quantity().compareTo(BigDecimal.ZERO) <= 0) {
             throw ApiException.badRequest("Quantity must be greater than 0.");
         }
-        // 2. Bestand von SAP holen
         MaterialStock materialStock = sapClient.getStock(material, location)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
 
-        // 3. Menge darf nicht größer als der Bestand sein
         if (request.quantity().compareTo(materialStock.quantity()) > 0) {
             throw ApiException.badRequest("Not enough stock: " + materialStock.quantity() + " " + materialStock.unit()
                     + " available, " + request.quantity() + " requested.");
         }
-        // 4. note kürzen: Der Kopftext eines SAP-Materialbelegs hat maximal 25 Zeichen
+        // SAP allows at most 25 characters for the header text
         String note = request.note();
         if (note != null && note.length() > 25) {
             note = note.substring(0, 25);
         }
-        // 5. SAP buchen
         MaterialDocument document = sapClient.postConsumption(material, request.quantity(), note, location);
 
-        // 6. Antwort bauen (Restbestand selbst berechnen, statt SAP noch einmal zu fragen)
+        // Computed here to avoid a second call to SAP
         BigDecimal remainingStock = materialStock.quantity().subtract(request.quantity());
         StockStatus status = calculateStatus(remainingStock, getMinimum(station, material));
 

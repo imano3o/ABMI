@@ -4,9 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 /**
- * Eine Station im Krankenhaus.
- * Der code ist gleichzeitig der SAP-Lagerort (StorageLocation), z. B. "ST03".
- * Die Kostenstelle (CostCenter) gibt an, auf wen der Verbrauch in SAP gebucht wird.
+ * code is also the SAP storage location, e.g. "ST03".
+ * Consumption is charged to costCenter in SAP.
  */
 @Entity
 public class Station {

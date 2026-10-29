@@ -22,9 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-/**
- * Echte Anbindung an den SAP-Mock per HTTP (sap.mode: http).
- */
+/** Calls the SAP mock over HTTP (sap.mode: http). */
 @Component
 @ConditionalOnProperty(name = "sap.mode", havingValue = "http")
 public class HttpSapClient implements SapClient {
@@ -32,8 +30,8 @@ public class HttpSapClient implements SapClient {
     private static final String STOCK_URI = "/sap/opu/odata/sap/API_MATERIAL_STOCK_SRV/A_MatlStkInAcctMod";
     private static final String MATERIAL_DOCUMENT_URI = "/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV/A_MaterialDocumentHeader";
 
-    private static final String GOODS_ISSUE = "03";       // GoodsMovementCode: Warenausgang
-    private static final String CONSUMPTION = "201";      // GoodsMovementType: Verbrauch an Kostenstelle
+    private static final String GOODS_ISSUE = "03";       // GoodsMovementCode: goods issue
+    private static final String CONSUMPTION = "201";      // GoodsMovementType: consumption for a cost center
     private static final Pattern ODATA_DATE = Pattern.compile("/Date\\((-?\\d+)[^)]*\\)/");
 
     private final RestClient restClient;
@@ -51,14 +49,14 @@ public class HttpSapClient implements SapClient {
 
         List<MaterialStock> result = new ArrayList<>();
         for (SapStock sapStock : response.d().results()) {
-            // Der Mock ignoriert $filter und liefert alle Lagerorte, deshalb hier selbst filtern
+            // The mock ignores $filter and returns all storage locations, so we filter here
             if (!location.plant().equals(sapStock.plant())
                     || !location.storageLocation().equals(sapStock.storageLocation())) {
                 continue;
             }
             result.add(new MaterialStock(
                     sapStock.material(),
-                    sapStock.material(), // TODO: Der Mock liefert keinen Namen – mit dem Team klären
+                    sapStock.material(), // TODO: the mock returns no name, clarify with the team
                     new BigDecimal(sapStock.quantity()),
                     sapStock.unit()
             ));
@@ -75,18 +73,17 @@ public class HttpSapClient implements SapClient {
 
     @Override
     public MaterialDocument postConsumption(String material, BigDecimal quantity, String note, SapLocation location) {
-        // Werk, Lagerort und Kostenstelle kommen aus den Stammdaten (Krankenhaus + Station)
         SapMaterialDocumentItem item = new SapMaterialDocumentItem(
                 material,
                 location.plant(),
                 location.storageLocation(),
                 CONSUMPTION,
-                quantity.toPlainString(),   // SAP erwartet Mengen als String
-                null,                       // Einheit: SAP nimmt die Basiseinheit
+                quantity.toPlainString(),   // SAP expects quantities as strings
+                null,                       // no unit: SAP uses the base unit
                 location.costCenter()
         );
         SapMaterialDocument request = new SapMaterialDocument(
-                null, null, null,           // Belegnummer, Jahr und Datum vergibt SAP
+                null, null, null,           // number, year and date are set by SAP
                 GOODS_ISSUE,
                 note,
                 new SapMaterialDocumentItems(List.of(item))
@@ -108,7 +105,7 @@ public class HttpSapClient implements SapClient {
         );
     }
 
-    /** Wandelt das OData-Datum "/Date(1792108800000)/" in ein LocalDate um. */
+    /** Parses the OData date format "/Date(1792108800000)/". */
     private static LocalDate parseODataDate(String value) {
         if (value == null) {
             return LocalDate.now();

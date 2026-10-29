@@ -1,6 +1,6 @@
 package de.hhn.abmi.dto.api;
 
-/** Krankenhaus für die Anzeige im Frontend; name kann null sein, wenn nicht gepflegt. */
+/** name is null if no hospital is configured. */
 public record HospitalResponse(
         String name
 ) {

@@ -1,5 +1,5 @@
-// MediFlow – einfaches Frontend ohne Framework.
-// Spricht nur mit der eigenen REST-API (siehe API.md), kennt keine SAP-Begriffe.
+// MediFlow frontend without a framework.
+// Talks only to our own REST API (see API.md), never to SAP.
 
 const API = "/api/medications";
 
@@ -10,19 +10,17 @@ const messageBox = document.getElementById("message");
 const stationSelect = document.getElementById("station");
 const STATION_KEY = "mediflow.station";
 
-/** Aktuell gewählte Station, z. B. "ST03". */
 function currentStation() {
     return stationSelect.value;
 }
 
-/** Baut die URL mit ?station=… für die gewählte Station. */
 function withStation(url) {
     return `${url}?station=${encodeURIComponent(currentStation())}`;
 }
 
-// ---------- Hilfsfunktionen ----------
+// ---------- Helpers ----------
 
-/** Ruft die API auf und wirft bei Fehlern die message aus { status, message }. */
+/** On errors, throws with the message from the { status, message } response. */
 async function request(url, options = {}) {
     let response;
     try {
@@ -61,9 +59,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ---------- Krankenhaus ----------
+// ---------- Hospital ----------
 
-/** Zeigt den Krankenhausnamen im Kopf an, falls er gepflegt ist. */
 async function loadHospital() {
     try {
         const hospital = await request("/api/hospital");
@@ -72,13 +69,12 @@ async function loadHospital() {
             document.title = `MediFlow – ${hospital.name}`;
         }
     } catch (e) {
-        // Ohne Namen geht es auch, der Platzhalter bleibt stehen
+        // Not critical: the placeholder name stays
     }
 }
 
-// ---------- Stationen ----------
+// ---------- Stations ----------
 
-/** Lädt die Stationen in die Auswahl und wählt die zuletzt benutzte wieder aus. */
 async function loadStations() {
     const stations = await request("/api/stations");
     stationSelect.innerHTML = stations
@@ -86,19 +82,19 @@ async function loadStations() {
         .join("");
 
     let saved = null;
-    try { saved = localStorage.getItem(STATION_KEY); } catch (e) { /* ohne Speicher geht es auch */ }
+    try { saved = localStorage.getItem(STATION_KEY); } catch (e) { /* storage may be blocked, not critical */ }
     if (saved && stations.some((s) => s.code === saved)) {
         stationSelect.value = saved;
     }
 }
 
 stationSelect.addEventListener("change", () => {
-    try { localStorage.setItem(STATION_KEY, currentStation()); } catch (e) { /* egal */ }
+    try { localStorage.setItem(STATION_KEY, currentStation()); } catch (e) { /* storage may be blocked, not critical */ }
     hideMessage();
     loadMedications();
 });
 
-// ---------- Liste ----------
+// ---------- List ----------
 
 async function loadMedications() {
     try {
@@ -116,7 +112,7 @@ function renderTable(medications) {
         return;
     }
 
-    // Kritische zuerst, dann niedrige, dann OK
+    // Most urgent first
     const order = { CRITICAL: 0, LOW: 1, OK: 2 };
     medications.sort((a, b) => order[a.status] - order[b.status]);
 
@@ -143,7 +139,7 @@ function renderRow(m) {
     `;
 }
 
-// ---------- Aktionen ----------
+// ---------- Actions ----------
 
 async function consume(material, form) {
     const quantity = Number(form.quantity.value);
@@ -160,7 +156,7 @@ async function consume(material, form) {
     );
 }
 
-// Ein Listener für alle Formulare in der Tabelle
+// One listener for all forms, because rows are re-rendered
 tbody.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.target;
@@ -183,7 +179,7 @@ document.getElementById("reload").addEventListener("click", () => {
     loadMedications();
 });
 
-// Start: erst die Stationen laden, dann die Medikamente der gewählten Station
+// Stations must be loaded first, the medications depend on the selected station
 async function init() {
     loadHospital();
     try {

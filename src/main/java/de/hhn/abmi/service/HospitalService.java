@@ -15,7 +15,7 @@ public class HospitalService {
         this.hospitalRepository = hospitalRepository;
     }
 
-    /** Für die Anzeige im Frontend; ohne Eintrag ist der Name null. */
+    /** name is null if the hospital table is empty. */
     public HospitalResponse getHospital() {
         String name = findHospital()
                 .map(Hospital::getName)
@@ -23,14 +23,13 @@ public class HospitalService {
         return new HospitalResponse(name);
     }
 
-    /** SAP-Werk des Krankenhauses, z. B. "1710". */
     public String requirePlant() {
         return findHospital()
                 .map(Hospital::getPlant)
                 .orElseThrow(() -> new IllegalStateException("No hospital in table 'hospital' (see data.sql)."));
     }
 
-    /** Es gibt genau ein Krankenhaus in der Tabelle. */
+    /** The table holds exactly one hospital. */
     private Optional<Hospital> findHospital() {
         return hospitalRepository.findAll().stream().findFirst();
     }

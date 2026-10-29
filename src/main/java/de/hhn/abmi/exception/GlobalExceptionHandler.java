@@ -10,37 +10,35 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 
 /**
- * Wandelt Exceptions aus allen Controllern in das Fehlerformat aus API.md um:
+ * Turns exceptions from all controllers into the error format from API.md:
  * { "status": 400, "message": "..." }
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** Unsere eigenen fachlichen Fehler (400, 404) */
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         return error(e.getStatus(), e.getMessage());
     }
 
-    /** Kaputtes oder fehlendes JSON im Request */
+    /** Request body is missing or not valid JSON. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableRequest(HttpMessageNotReadableException e) {
         return error(HttpStatus.BAD_REQUEST, "Invalid request (JSON missing or malformed).");
     }
 
-    /** Pflicht-Parameter in der URL fehlt, z. B. ?station= */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
         return error(HttpStatus.BAD_REQUEST, "Parameter '" + e.getParameterName() + "' is missing.");
     }
 
-    /** SAP (Mock) nicht erreichbar oder meldet einen Fehler */
+    /** SAP mock is not reachable or returned an error status. */
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ErrorResponse> handleSapError(RestClientException e) {
         return error(HttpStatus.BAD_GATEWAY, "SAP is not reachable or returned an error.");
     }
 
-    /** Funktion gibt es im SAP-Mock noch nicht (HttpSapClient) */
+    /** For functions the SAP mock does not support yet. */
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ErrorResponse> handleNotSupported(UnsupportedOperationException e) {
         return error(HttpStatus.BAD_GATEWAY, "SAP does not support this function yet.");

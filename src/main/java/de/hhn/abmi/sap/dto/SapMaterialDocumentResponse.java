@@ -1,6 +1,6 @@
 package de.hhn.abmi.sap.dto;
 
-/** OData-v2-Antwort auf einen POST: { "d": { ... } } */
+/** OData v2 wraps every response in { "d": ... }. */
 public record SapMaterialDocumentResponse(
         SapMaterialDocument d
 ) {

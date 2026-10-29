@@ -2,7 +2,7 @@ package de.hhn.abmi.sap.dto;
 
 import java.util.List;
 
-/** Der Teil { "results": [...] } unter to_MaterialDocumentItem. */
+/** OData wraps lists in { "results": [...] }. */
 public record SapMaterialDocumentItems(
         List<SapMaterialDocumentItem> results
 ) {

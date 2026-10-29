@@ -3,9 +3,7 @@ package de.hhn.abmi.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
-/**
- * Das Krankenhaus. In SAP entspricht es einem Werk (Plant), z. B. "1710".
- */
+/** In SAP a hospital is a plant, e.g. "1710". */
 @Entity
 public class Hospital {
 

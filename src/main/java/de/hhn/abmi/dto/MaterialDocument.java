@@ -3,7 +3,7 @@ package de.hhn.abmi.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Ein gebuchter Materialbeleg, wie unsere App ihn intern nutzt (unabhängig vom SAP-Format). */
+/** Our own type, so the services do not depend on the SAP format. */
 public record MaterialDocument(
         String materialDocument,
         LocalDate postingDate,

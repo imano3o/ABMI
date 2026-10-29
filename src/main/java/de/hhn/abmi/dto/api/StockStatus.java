@@ -1,9 +1,6 @@
 package de.hhn.abmi.dto.api;
 
-/**
- * Ampel für den Bestand im Vergleich zum Mindestbestand.
- * OK = mindestens Mindestbestand, LOW = darunter, CRITICAL = leer oder unter der Hälfte.
- */
+/** LOW: below the minimum stock. CRITICAL: empty or below half of the minimum stock. */
 public enum StockStatus {
     OK,
     LOW,
