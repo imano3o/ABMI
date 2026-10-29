@@ -42,6 +42,7 @@ public class HttpSapClient implements SapClient {
 
     @Override
     public List<MaterialStock> getStocks(SapLocation location) {
+        // Jackson turns SAP's JSON into SapStockResponse -> SapStockResults -> SapStock
         SapStockResponse response = restClient.get()
                 .uri(STOCK_URI)
                 .retrieve()
@@ -54,6 +55,7 @@ public class HttpSapClient implements SapClient {
                     || !location.storageLocation().equals(sapStock.storageLocation())) {
                 continue;
             }
+            // SapStock (SAP format) -> MaterialStock (our format); the quantity string becomes a number
             result.add(new MaterialStock(
                     sapStock.material(),
                     sapStock.material(), // TODO: the mock returns no name, clarify with the team
@@ -73,6 +75,7 @@ public class HttpSapClient implements SapClient {
 
     @Override
     public MaterialDocument postConsumption(String material, BigDecimal quantity, String note, SapLocation location) {
+        // Our parameters -> SAP format: one item inside a material document header
         SapMaterialDocumentItem item = new SapMaterialDocumentItem(
                 material,
                 location.plant(),
@@ -95,6 +98,7 @@ public class HttpSapClient implements SapClient {
                 .retrieve()
                 .body(SapMaterialDocumentResponse.class);
 
+        // SapMaterialDocument (SAP format) -> MaterialDocument (our format)
         SapMaterialDocument created = response.d();
         return new MaterialDocument(
                 created.materialDocument(),

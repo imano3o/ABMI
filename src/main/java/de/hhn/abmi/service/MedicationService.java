@@ -45,15 +45,18 @@ public class MedicationService {
      * @throws ApiException with status 404 if the station does not exist
      */
     public List<MedicationResponse> getMedications(String station) {
+        // Station code -> plant, storage location and cost center from our master data
         SapLocation location = stationService.sapLocationOf(station);
         List<MedicationResponse> result = new ArrayList<>();
 
+        // SapClient already returns our own MaterialStock, no SAP format here
         for (MaterialStock stock : sapClient.getStocks(location)) {
 
             BigDecimal minimum = getMinimum(station, stock.material());
 
             StockStatus status = calculateStatus(stock.quantity(), minimum);
 
+            // MaterialStock (SAP) + minimum stock (H2) + status -> MedicationResponse for the frontend
             result.add(new MedicationResponse(
                     stock.material(),
                     stock.name(),
@@ -96,6 +99,7 @@ public class MedicationService {
     public MinimumStockResponse getMedication(String station, String material) {
         MinimumStock minimumStock = minimumStockRepository.findByStationAndMaterial(station, material)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
+        // Entity -> response DTO, so the database id never reaches the frontend
         return new MinimumStockResponse(
                 minimumStock.getStation(),
                 minimumStock.getMaterial(),
@@ -114,11 +118,13 @@ public class MedicationService {
      *                      and with status 404 if the station or material is unknown
      */
     public ConsumeResponse consume(String station, String material, ConsumeRequest request) {
+        // Station code -> plant, storage location and cost center from our master data
         SapLocation location = stationService.sapLocationOf(station);
 
         if (request.quantity() == null || request.quantity().compareTo(BigDecimal.ZERO) <= 0) {
             throw ApiException.badRequest("Quantity must be greater than 0.");
         }
+        // Current stock from SAP, needed to reject a quantity that is larger than the stock
         MaterialStock materialStock = sapClient.getStock(material, location)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
 
@@ -131,12 +137,14 @@ public class MedicationService {
         if (note != null && note.length() > 25) {
             note = note.substring(0, 25);
         }
+        // Books in SAP; SapClient converts SAP's answer into our own MaterialDocument
         MaterialDocument document = sapClient.postConsumption(material, request.quantity(), note, location);
 
         // Computed here to avoid a second call to SAP
         BigDecimal remainingStock = materialStock.quantity().subtract(request.quantity());
         StockStatus status = calculateStatus(remainingStock, getMinimum(station, material));
 
+        // MaterialDocument (SAP) + remaining stock + status -> ConsumeResponse for the frontend
         return new ConsumeResponse(
                 document.materialDocument(),
                 String.valueOf(document.postingDate().getYear()),

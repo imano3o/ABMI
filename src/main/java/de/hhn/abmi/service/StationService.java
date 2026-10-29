@@ -29,6 +29,7 @@ public class StationService {
      */
     public List<StationResponse> getStations() {
         return stationRepository.findAllByOrderByCode().stream()
+                // Entity -> response DTO with only what the selection needs
                 .map(station -> new StationResponse(station.getCode(), station.getName()))
                 .toList();
     }

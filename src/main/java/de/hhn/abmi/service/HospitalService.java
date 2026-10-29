@@ -27,6 +27,7 @@ public class HospitalService {
         String name = findHospital()
                 .map(Hospital::getName)
                 .orElse(null);
+        // Entity -> response DTO; the SAP plant stays in the backend
         return new HospitalResponse(name);
     }
 
