@@ -1,68 +1,60 @@
 ### Liste anzeigen
-GET http://localhost:8080/api/medications
+GET http://localhost:8080/api/medications?station=ST03
 
 ### ✅ Verbrauchen: normaler Fall
-POST http://localhost:8080/api/medications/MED-ENOX40/consume
+POST http://localhost:8080/api/medications/MED-ENOX40/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 2, "note": "Zi. 12, Fr. Müller" }
 
 ### ✅ Ohne note (note ist optional)
-POST http://localhost:8080/api/medications/MED-NACL500/consume
+POST http://localhost:8080/api/medications/MED-NACL500/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 1 }
 
 ### ✅ Zu lange note → wird gekürzt
-POST http://localhost:8080/api/medications/MED-NACL500/consume
+POST http://localhost:8080/api/medications/MED-NACL500/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 1, "note": "Zimmer 12, Frau Müller, nach der OP am Morgen" }
 
 ### ❌ Menge 0
-POST http://localhost:8080/api/medications/MED-ENOX40/consume
+POST http://localhost:8080/api/medications/MED-ENOX40/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 0 }
 
 ### ❌ Mehr als Bestand
-POST http://localhost:8080/api/medications/MED-ENOX40/consume
+POST http://localhost:8080/api/medications/MED-ENOX40/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 999 }
 
 ### ❌ Unbekanntes Material
-POST http://localhost:8080/api/medications/MED-GIBTSNICHT/consume
+POST http://localhost:8080/api/medications/MED-GIBTSNICHT/consume?station=ST03
 Content-Type: application/json
 
 { "quantity": 1 }
 
 ### ❌ Ohne quantity
-POST http://localhost:8080/api/medications/MED-ENOX40/consume
+POST http://localhost:8080/api/medications/MED-ENOX40/consume?station=ST03
 Content-Type: application/json
 
 { "note": "nur Notiz" }
 
-### ✅ Nachbestellen → 201
-POST http://localhost:8080/api/medications/MED-ENOX40/reorder
-Content-Type: application/json
 
-{ "quantity": 14 }
+### Krankenhaus
+GET http://localhost:8080/api/hospital
 
-### ❌ Nochmal nachbestellen → 409 (schon offen)
-POST http://localhost:8080/api/medications/MED-ENOX40/reorder
-Content-Type: application/json
+### Stationen
+GET http://localhost:8080/api/stations
 
-{ "quantity": 14 }
+### Liste andere Station
+GET http://localhost:8080/api/medications?station=ST01
 
-### ❌ Nachbestellen mit Menge 0 → 400
-POST http://localhost:8080/api/medications/MED-ONDAN4/reorder
-Content-Type: application/json
+### ❌ Ohne Station → 400
+GET http://localhost:8080/api/medications
 
-{ "quantity": 0 }
-
-### ❌ Nachbestellen unbekanntes Material → 404
-POST http://localhost:8080/api/medications/MED-GIBTSNICHT/reorder
-Content-Type: application/json
-
-{ "quantity": 5 }
+### ❌ Unbekannte Station → 404
+GET http://localhost:8080/api/medications?station=ST99

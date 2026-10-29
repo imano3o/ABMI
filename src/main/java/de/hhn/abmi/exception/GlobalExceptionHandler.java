@@ -4,6 +4,7 @@ import de.hhn.abmi.dto.api.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
@@ -15,7 +16,7 @@ import org.springframework.web.client.RestClientException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** Unsere eigenen fachlichen Fehler (400, 404, 409) */
+    /** Unsere eigenen fachlichen Fehler (400, 404) */
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         return error(e.getStatus(), e.getMessage());
@@ -25,6 +26,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableRequest(HttpMessageNotReadableException e) {
         return error(HttpStatus.BAD_REQUEST, "Invalid request (JSON missing or malformed).");
+    }
+
+    /** Pflicht-Parameter in der URL fehlt, z. B. ?station= */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
+        return error(HttpStatus.BAD_REQUEST, "Parameter '" + e.getParameterName() + "' is missing.");
     }
 
     /** SAP (Mock) nicht erreichbar oder meldet einen Fehler */

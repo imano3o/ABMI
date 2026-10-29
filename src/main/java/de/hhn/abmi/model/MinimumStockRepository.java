@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface MinimumStockRepository extends JpaRepository<MinimumStock, Long> {
 
-    Optional<MinimumStock> findByMaterial(String material);
-}       
+    /** Spring Data baut die Abfrage aus dem Methodennamen: WHERE station = ? AND material = ? */
+    Optional<MinimumStock> findByStationAndMaterial(String station, String material);
+}
