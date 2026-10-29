@@ -3,7 +3,7 @@ package de.hhn.abmi.controller;
 import de.hhn.abmi.dto.api.ConsumeRequest;
 import de.hhn.abmi.dto.api.ConsumeResponse;
 import de.hhn.abmi.dto.api.MedicationResponse;
-import de.hhn.abmi.model.MinimumStock;
+import de.hhn.abmi.dto.api.MinimumStockResponse;
 import de.hhn.abmi.service.MedicationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +48,7 @@ public class MedicationController {
      * @return the minimum stock entry
      */
     @GetMapping("/{material}")
-    public MinimumStock findMed(@RequestParam String station, @PathVariable String material) {
+    public MinimumStockResponse findMed(@RequestParam String station, @PathVariable String material) {
         return medicationService.getMedication(station, material);
     }
 

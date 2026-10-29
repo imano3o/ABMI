@@ -5,6 +5,7 @@ import de.hhn.abmi.dto.MaterialStock;
 import de.hhn.abmi.dto.api.ConsumeRequest;
 import de.hhn.abmi.dto.api.ConsumeResponse;
 import de.hhn.abmi.dto.api.MedicationResponse;
+import de.hhn.abmi.dto.api.MinimumStockResponse;
 import de.hhn.abmi.dto.api.StockStatus;
 import de.hhn.abmi.exception.ApiException;
 import de.hhn.abmi.model.MinimumStock;
@@ -92,9 +93,14 @@ public class MedicationService {
      * @return the minimum stock entry
      * @throws ApiException with status 404 if no minimum stock is configured
      */
-    public MinimumStock getMedication(String station, String material) {
-        return minimumStockRepository.findByStationAndMaterial(station, material)
+    public MinimumStockResponse getMedication(String station, String material) {
+        MinimumStock minimumStock = minimumStockRepository.findByStationAndMaterial(station, material)
                 .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."));
+        return new MinimumStockResponse(
+                minimumStock.getStation(),
+                minimumStock.getMaterial(),
+                minimumStock.getMinimumQuantity()
+        );
     }
 
     /**
