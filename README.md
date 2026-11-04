@@ -10,7 +10,8 @@ Pflegekräfte sehen den Bestand ihrer Station und buchen Verbräuche direkt in S
 - Prüft vorher, ob die Menge gültig ist und genug Bestand da ist
 
 Der **aktuelle Bestand** kommt immer aus SAP. In der eigenen Datenbank (H2) stehen nur die
-**Stammdaten**: Krankenhaus, Stationen und Mindestbestände.
+**Stammdaten**: Krankenhaus, Stationen, Mindestbestände und die Namen der Medikamente
+(SAP liefert im Bestand nur die Materialnummer).
 
 ## Aufbau
 
