@@ -2,11 +2,13 @@ package de.hhn.abmi.controller;
 
 import de.hhn.abmi.dto.api.GoodsReceiptResponse;
 import de.hhn.abmi.dto.api.OrderProposalResponse;
+import de.hhn.abmi.dto.api.OrderRequest;
 import de.hhn.abmi.dto.api.PurchaseOrderResponse;
 import de.hhn.abmi.service.OrderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,13 @@ public class OrderController {
     @PostMapping
     public List<PurchaseOrderResponse> placeOrders(@RequestParam String station) {
         return orderService.placeOrders(station);
+    }
+
+    /** Orders one medication with the quantity the user chose. */
+    @PostMapping("/{material}")
+    public PurchaseOrderResponse placeOrder(@RequestParam String station, @PathVariable String material,
+                                            @RequestBody OrderRequest request) {
+        return orderService.placeOrder(station, material, request.quantity());
     }
 
     /** Lists the station's orders, open ones first. */

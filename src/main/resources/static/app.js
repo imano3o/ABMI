@@ -155,7 +155,7 @@ async function loadOrders() {
         renderProposals(proposals);
         renderOrders(orders);
     } catch (e) {
-        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
+        proposalsBody.innerHTML = `<tr><td colspan="7" class="empty">Keine Daten</td></tr>`;
         ordersBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
         showMessage(e.message, "error");
     }
@@ -164,7 +164,7 @@ async function loadOrders() {
 function renderProposals(proposals) {
     placeOrdersButton.disabled = !proposals.some((p) => p.proposedQuantity > 0);
     if (proposals.length === 0) {
-        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Alle Bestände sind in Ordnung</td></tr>`;
+        proposalsBody.innerHTML = `<tr><td colspan="7" class="empty">Alle Bestände sind in Ordnung</td></tr>`;
         return;
     }
     proposalsBody.innerHTML = proposals.map((p) => `
@@ -178,6 +178,15 @@ function renderProposals(proposals) {
             <td class="num"><strong>${p.proposedQuantity > 0
                 ? `${formatNumber(p.proposedQuantity)} ${escapeHtml(p.unit)}`
                 : "bereits bestellt"}</strong></td>
+            <td>
+                <form data-action="order" data-material="${escapeHtml(p.material)}">
+                    <!-- Prefilled with the proposal; the backend checks the rules again -->
+                    <input type="number" name="quantity" required aria-label="Bestellmenge"
+                           value="${p.proposedQuantity > 0 ? p.proposedQuantity : p.packageSize}"
+                           min="${p.packageSize}" step="${p.packageSize}" max="${p.targetStock * 2}">
+                    <button type="submit">Bestellen</button>
+                </form>
+            </td>
         </tr>
     `).join("");
 }
@@ -215,6 +224,29 @@ placeOrdersButton.addEventListener("click", async () => {
     } catch (e) {
         showMessage(e.message, "error");
         placeOrdersButton.disabled = false;
+    }
+});
+
+// One listener for all order forms, because rows are re-rendered
+proposalsBody.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const button = form.querySelector("button");
+    const material = form.dataset.material;
+    const quantity = Number(form.quantity.value);
+
+    hideMessage();
+    button.disabled = true;
+    try {
+        const order = await request(withStation(`${ORDERS_API}/${encodeURIComponent(material)}`), {
+            method: "POST",
+            body: JSON.stringify({ quantity }),
+        });
+        showMessage(`Bestellung ${order.purchaseOrder} angelegt: ${formatNumber(order.quantity)} ${order.unit} ${material}.`, "success");
+        await loadAll();
+    } catch (e) {
+        showMessage(e.message, "error");
+        button.disabled = false;
     }
 });
 

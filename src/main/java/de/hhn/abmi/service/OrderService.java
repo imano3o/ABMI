@@ -68,6 +68,32 @@ public class OrderService {
     }
 
     /**
+     * Checks a quantity the user typed in.
+     *
+     * <p>The cap of twice the target stock catches typos like 300 instead of 30,
+     * which would otherwise go straight to the supplier.
+     *
+     * @param quantity    quantity to order
+     * @param packageSize pieces per package
+     * @param target      target stock of the medication
+     * @throws ApiException with status 400 if a rule is broken
+     */
+    public static void checkOrderQuantity(BigDecimal quantity, BigDecimal packageSize, BigDecimal target) {
+        if (quantity == null || quantity.signum() <= 0) {
+            throw ApiException.badRequest("Order quantity must be greater than 0.");
+        }
+        if (quantity.remainder(packageSize).signum() != 0) {
+            throw ApiException.badRequest("Order quantity must be a multiple of the package size "
+                    + packageSize.stripTrailingZeros().toPlainString() + ".");
+        }
+        BigDecimal max = target.multiply(BigDecimal.TWO);
+        if (quantity.compareTo(max) > 0) {
+            throw ApiException.badRequest("Order quantity must not exceed "
+                    + max.stripTrailingZeros().toPlainString() + " (twice the target stock).");
+        }
+    }
+
+    /**
      * Returns an order proposal for every medication of a station that is below its minimum stock.
      *
      * @param station station code
@@ -129,6 +155,30 @@ public class OrderService {
             created.add(toResponse(order));
         }
         return created;
+    }
+
+    /**
+     * Orders one medication with a quantity chosen by the user instead of the proposal.
+     *
+     * @param station  station code
+     * @param material material number
+     * @param quantity quantity to order
+     * @return the created order
+     * @throws ApiException with status 404 if the station, the material or its minimum stock is unknown,
+     *                      and with status 400 if the quantity breaks a rule of {@link #checkOrderQuantity}
+     */
+    public PurchaseOrderResponse placeOrder(String station, String material, BigDecimal quantity) {
+        SapLocation location = stationService.sapLocationOf(station);
+        // Package size and target are needed for the rules, so only configured medications can be ordered
+        MinimumStock settings = minimumStockRepository.findByStationAndMaterial(station, material)
+                .orElseThrow(() -> ApiException.notFound("No minimum stock configured for " + material + " on station " + station + "."));
+        checkOrderQuantity(quantity, settings.getPackageSize(), settings.getTargetQuantity());
+
+        // The unit comes from SAP, so it always matches the stock
+        String unit = sapClient.getStock(material, location)
+                .orElseThrow(() -> ApiException.notFound("Unknown material " + material + " on station " + station + "."))
+                .unit();
+        return toResponse(sapClient.createPurchaseOrder(material, quantity, unit, location));
     }
 
     /**
