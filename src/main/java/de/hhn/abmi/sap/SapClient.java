@@ -2,6 +2,7 @@ package de.hhn.abmi.sap;
 
 import de.hhn.abmi.dto.MaterialDocument;
 import de.hhn.abmi.dto.MaterialStock;
+import de.hhn.abmi.dto.PurchaseOrder;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -42,5 +43,33 @@ public interface SapClient {
      * @return the booked material document
      */
     MaterialDocument postConsumption(String material, BigDecimal quantity, String note, SapLocation location);
+
+    /**
+     * Returns all purchase orders that are delivered to a location, open and delivered ones.
+     *
+     * @param location plant and storage location the orders are delivered to
+     * @return one entry per order item
+     */
+    List<PurchaseOrder> getPurchaseOrders(SapLocation location);
+
+    /**
+     * Creates a purchase order for one material at the configured supplier.
+     *
+     * @param material material number
+     * @param quantity amount to order, greater than 0
+     * @param unit     unit of measure
+     * @param location plant and storage location to deliver to
+     * @return the created order
+     */
+    PurchaseOrder createPurchaseOrder(String material, BigDecimal quantity, String unit, SapLocation location);
+
+    /**
+     * Books the goods receipt for an order item; SAP raises the stock by the delivered quantity.
+     *
+     * @param order    the delivered order item
+     * @param location plant and storage location the goods arrive at
+     * @return the booked material document (movement type 101)
+     */
+    MaterialDocument postGoodsReceipt(PurchaseOrder order, SapLocation location);
 
 }

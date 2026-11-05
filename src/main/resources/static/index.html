@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MediFlow</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <header>
@@ -35,8 +35,52 @@
         <tr><td colspan="5" class="empty">Lade Daten …</td></tr>
         </tbody>
     </table>
+
+    <section>
+        <div class="section-head">
+            <div>
+                <h2>Bestellvorschläge</h2>
+                <p class="hint">Menge = Zielbestand − Bestand − bereits bestellt, aufgerundet auf volle Packungen</p>
+            </div>
+            <button id="place-orders" type="button">Vorschläge bestellen</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Medikament</th>
+                <th class="num">Bestand</th>
+                <th class="num">Ziel</th>
+                <th class="num">Bestellt</th>
+                <th class="num">Packung</th>
+                <th class="num">Vorschlag</th>
+            </tr>
+            </thead>
+            <tbody id="proposals">
+            <tr><td colspan="6" class="empty">Lade Daten …</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <div class="section-head"><h2>Bestellungen</h2></div>
+        <table>
+            <thead>
+            <tr>
+                <th>Bestellung</th>
+                <th>Medikament</th>
+                <th class="num">Menge</th>
+                <th>Datum</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="orders">
+            <tr><td colspan="6" class="empty">Lade Daten …</td></tr>
+            </tbody>
+        </table>
+    </section>
 </main>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

@@ -123,3 +123,8 @@ select {
     font: inherit;
     font-size: 14px;
 }
+
+section { margin-top: 32px; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 10px; }
+h2 { margin: 0; font-size: 17px; }
+.hint { margin: 2px 0 0; color: var(--muted); font-size: 13px; }

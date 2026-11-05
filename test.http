@@ -58,3 +58,24 @@ GET http://localhost:8080/api/medications
 
 ### ❌ Unbekannte Station → 404
 GET http://localhost:8080/api/medications?station=ST99
+
+### Bestellvorschläge (nur anzeigen, bestellt nichts)
+GET http://localhost:8080/api/orders/proposals?station=ST03
+
+### Vorschläge bestellen: legt in SAP eine Bestellung pro Medikament an
+POST http://localhost:8080/api/orders?station=ST03
+
+### ✅ Nochmal bestellen → leere Liste, weil schon alles bestellt ist (keine Doppelbestellung)
+POST http://localhost:8080/api/orders?station=ST03
+
+### Bestellungen der Station
+GET http://localhost:8080/api/orders?station=ST03
+
+### Wareneingang buchen (Bewegungsart 101): Bestand steigt
+POST http://localhost:8080/api/orders/4500000001/goods-receipt?station=ST03
+
+### ❌ Wareneingang doppelt → 400
+POST http://localhost:8080/api/orders/4500000001/goods-receipt?station=ST03
+
+### ❌ Bestellung einer anderen Station → 404
+POST http://localhost:8080/api/orders/4500000002/goods-receipt?station=ST01

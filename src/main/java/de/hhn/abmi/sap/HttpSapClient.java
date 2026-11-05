@@ -2,10 +2,16 @@ package de.hhn.abmi.sap;
 
 import de.hhn.abmi.dto.MaterialDocument;
 import de.hhn.abmi.dto.MaterialStock;
+import de.hhn.abmi.dto.PurchaseOrder;
 import de.hhn.abmi.sap.dto.SapMaterialDocument;
 import de.hhn.abmi.sap.dto.SapMaterialDocumentItem;
 import de.hhn.abmi.sap.dto.SapMaterialDocumentItems;
 import de.hhn.abmi.sap.dto.SapMaterialDocumentResponse;
+import de.hhn.abmi.sap.dto.SapPurchaseOrder;
+import de.hhn.abmi.sap.dto.SapPurchaseOrderItem;
+import de.hhn.abmi.sap.dto.SapPurchaseOrderItems;
+import de.hhn.abmi.sap.dto.SapPurchaseOrderListResponse;
+import de.hhn.abmi.sap.dto.SapPurchaseOrderResponse;
 import de.hhn.abmi.sap.dto.SapStock;
 import de.hhn.abmi.sap.dto.SapStockResponse;
 import java.math.BigDecimal;
@@ -29,15 +35,21 @@ public class HttpSapClient implements SapClient {
 
     private static final String STOCK_URI = "/sap/opu/odata/sap/API_MATERIAL_STOCK_SRV/A_MatlStkInAcctMod";
     private static final String MATERIAL_DOCUMENT_URI = "/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV/A_MaterialDocumentHeader";
+    private static final String PURCHASE_ORDER_URI = "/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV/A_PurchaseOrder";
 
     private static final String GOODS_ISSUE = "03";       // GoodsMovementCode: goods issue
     private static final String CONSUMPTION = "201";      // GoodsMovementType: consumption for a cost center
+    private static final String GOODS_RECEIPT_CODE = "01"; // GoodsMovementCode: goods receipt for a purchase order
+    private static final String GOODS_RECEIPT = "101";    // GoodsMovementType: goods receipt for a purchase order
+    private static final String STANDARD_ORDER = "NB";    // PurchaseOrderType: standard purchase order
     private static final Pattern ODATA_DATE = Pattern.compile("/Date\\((-?\\d+)[^)]*\\)/");
 
     private final RestClient restClient;
+    private final PurchasingSettings purchasing;
 
-    public HttpSapClient(@Value("${sap.base-url}") String baseUrl) {
+    public HttpSapClient(@Value("${sap.base-url}") String baseUrl, PurchasingSettings purchasing) {
         this.restClient = RestClient.create(baseUrl);
+        this.purchasing = purchasing;
     }
 
     @Override
@@ -83,7 +95,8 @@ public class HttpSapClient implements SapClient {
                 CONSUMPTION,
                 quantity.toPlainString(),   // SAP expects quantities as strings
                 null,                       // no unit: SAP uses the base unit
-                location.costCenter()
+                location.costCenter(),
+                null, null                  // no purchase order: this is a consumption
         );
         SapMaterialDocument request = new SapMaterialDocument(
                 null, null, null,           // number, year and date are set by SAP
@@ -106,6 +119,111 @@ public class HttpSapClient implements SapClient {
                 CONSUMPTION,
                 material,
                 quantity
+        );
+    }
+
+    @Override
+    public List<PurchaseOrder> getPurchaseOrders(SapLocation location) {
+        // The mock ignores $filter and $expand: it returns all orders with their items, so we filter here
+        SapPurchaseOrderListResponse response = restClient.get()
+                .uri(PURCHASE_ORDER_URI)
+                .retrieve()
+                .body(SapPurchaseOrderListResponse.class);
+
+        List<PurchaseOrder> result = new ArrayList<>();
+        for (SapPurchaseOrder order : response.d().results()) {
+            for (SapPurchaseOrderItem item : order.items().results()) {
+                if (location.plant().equals(item.plant()) && location.storageLocation().equals(item.storageLocation())) {
+                    result.add(toPurchaseOrder(order, item));
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public PurchaseOrder createPurchaseOrder(String material, BigDecimal quantity, String unit, SapLocation location) {
+        // Our parameters -> SAP format; supplier and purchasing org come from application.yaml, not from the user
+        SapPurchaseOrderItem item = new SapPurchaseOrderItem(
+                null,                       // item number is set by SAP
+                material,
+                location.plant(),
+                location.storageLocation(),
+                quantity.toPlainString(),   // SAP expects quantities as strings
+                unit,
+                null
+        );
+        SapPurchaseOrder request = new SapPurchaseOrder(
+                null,                       // number is set by SAP
+                purchasing.companyCode(),
+                STANDARD_ORDER,
+                purchasing.supplier(),
+                purchasing.purchasingOrganization(),
+                purchasing.purchasingGroup(),
+                null,                       // date is set by SAP
+                new SapPurchaseOrderItems(List.of(item))
+        );
+
+        SapPurchaseOrderResponse response = restClient.post()
+                .uri(PURCHASE_ORDER_URI)
+                .body(request)
+                .retrieve()
+                .body(SapPurchaseOrderResponse.class);
+
+        // SapPurchaseOrder (SAP format) -> PurchaseOrder (our format)
+        SapPurchaseOrder created = response.d();
+        return toPurchaseOrder(created, created.items().results().getFirst());
+    }
+
+    @Override
+    public MaterialDocument postGoodsReceipt(PurchaseOrder order, SapLocation location) {
+        // Same API as the consumption, only the movement type differs and the order is referenced
+        SapMaterialDocumentItem item = new SapMaterialDocumentItem(
+                order.material(),
+                location.plant(),
+                location.storageLocation(),
+                GOODS_RECEIPT,
+                order.quantity().toPlainString(),
+                order.unit(),
+                null,                       // no cost center: a goods receipt goes into stock
+                order.purchaseOrder(),
+                order.purchaseOrderItem()
+        );
+        SapMaterialDocument request = new SapMaterialDocument(
+                null, null, null,
+                GOODS_RECEIPT_CODE,
+                "Lieferung " + order.purchaseOrder(),
+                new SapMaterialDocumentItems(List.of(item))
+        );
+
+        SapMaterialDocumentResponse response = restClient.post()
+                .uri(MATERIAL_DOCUMENT_URI)
+                .body(request)
+                .retrieve()
+                .body(SapMaterialDocumentResponse.class);
+
+        // SapMaterialDocument (SAP format) -> MaterialDocument (our format)
+        SapMaterialDocument created = response.d();
+        return new MaterialDocument(
+                created.materialDocument(),
+                parseODataDate(created.postingDate()),
+                GOODS_RECEIPT,
+                order.material(),
+                order.quantity()
+        );
+    }
+
+    /** SapPurchaseOrder + one of its items (SAP format) -> PurchaseOrder (our format) */
+    private static PurchaseOrder toPurchaseOrder(SapPurchaseOrder order, SapPurchaseOrderItem item) {
+        return new PurchaseOrder(
+                order.purchaseOrder(),
+                item.purchaseOrderItem(),
+                item.material(),
+                item.storageLocation(),
+                new BigDecimal(item.quantity()),
+                item.unit(),
+                parseODataDate(order.purchaseOrderDate()),
+                Boolean.TRUE.equals(item.completelyDelivered())
         );
     }
 

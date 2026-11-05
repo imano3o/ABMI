@@ -2,6 +2,7 @@
 // Talks only to our own REST API, never to SAP.
 
 const API = "/api/medications";
+const ORDERS_API = "/api/orders";
 
 const STATUS_TEXT = { OK: "OK", LOW: "Niedrig", CRITICAL: "Kritisch" };
 
@@ -91,7 +92,7 @@ async function loadStations() {
 stationSelect.addEventListener("change", () => {
     try { localStorage.setItem(STATION_KEY, currentStation()); } catch (e) { /* storage may be blocked, not critical */ }
     hideMessage();
-    loadMedications();
+    loadAll();
 });
 
 // ---------- List ----------
@@ -139,6 +140,111 @@ function renderRow(m) {
     `;
 }
 
+// ---------- Orders ----------
+
+const proposalsBody = document.getElementById("proposals");
+const ordersBody = document.getElementById("orders");
+const placeOrdersButton = document.getElementById("place-orders");
+
+async function loadOrders() {
+    try {
+        const [proposals, orders] = await Promise.all([
+            request(withStation(`${ORDERS_API}/proposals`)),
+            request(withStation(ORDERS_API)),
+        ]);
+        renderProposals(proposals);
+        renderOrders(orders);
+    } catch (e) {
+        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
+        ordersBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
+        showMessage(e.message, "error");
+    }
+}
+
+function renderProposals(proposals) {
+    placeOrdersButton.disabled = !proposals.some((p) => p.proposedQuantity > 0);
+    if (proposals.length === 0) {
+        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Alle Bestände sind in Ordnung</td></tr>`;
+        return;
+    }
+    proposalsBody.innerHTML = proposals.map((p) => `
+        <tr>
+            <td>${escapeHtml(p.name)} <span class="badge ${p.status}">${STATUS_TEXT[p.status] ?? p.status}</span>
+                <div class="material">${escapeHtml(p.material)}</div></td>
+            <td class="num">${formatNumber(p.stock)}</td>
+            <td class="num">${formatNumber(p.targetStock)}</td>
+            <td class="num">${formatNumber(p.openOrderQuantity)}</td>
+            <td class="num">${formatNumber(p.packageSize)}</td>
+            <td class="num"><strong>${p.proposedQuantity > 0
+                ? `${formatNumber(p.proposedQuantity)} ${escapeHtml(p.unit)}`
+                : "bereits bestellt"}</strong></td>
+        </tr>
+    `).join("");
+}
+
+function renderOrders(orders) {
+    if (orders.length === 0) {
+        ordersBody.innerHTML = `<tr><td colspan="6" class="empty">Noch keine Bestellungen</td></tr>`;
+        return;
+    }
+    ordersBody.innerHTML = orders.map((o) => `
+        <tr>
+            <td>${escapeHtml(o.purchaseOrder)}</td>
+            <td>${escapeHtml(o.material)}</td>
+            <td class="num">${formatNumber(o.quantity)} ${escapeHtml(o.unit)}</td>
+            <td>${new Date(o.orderDate).toLocaleDateString("de-DE")}</td>
+            <td><span class="badge ${o.delivered ? "OK" : "LOW"}">${o.delivered ? "Geliefert" : "Offen"}</span></td>
+            <td>${o.delivered ? "" : `<button type="button" data-receive="${escapeHtml(o.purchaseOrder)}">Wareneingang buchen</button>`}</td>
+        </tr>
+    `).join("");
+}
+
+placeOrdersButton.addEventListener("click", async () => {
+    hideMessage();
+    placeOrdersButton.disabled = true;
+    try {
+        const created = await request(withStation(ORDERS_API), { method: "POST" });
+        showMessage(
+            created.length === 0
+                ? "Es gibt nichts zu bestellen."
+                : `${created.length} Bestellung(en) angelegt: ` +
+                  created.map((o) => `${o.purchaseOrder} (${formatNumber(o.quantity)} × ${o.material})`).join(", "),
+            "success"
+        );
+        await loadAll();
+    } catch (e) {
+        showMessage(e.message, "error");
+        placeOrdersButton.disabled = false;
+    }
+});
+
+ordersBody.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-receive]");
+    if (!button) return;
+    const purchaseOrder = button.dataset.receive;
+
+    hideMessage();
+    button.disabled = true;
+    try {
+        const result = await request(
+            withStation(`${ORDERS_API}/${encodeURIComponent(purchaseOrder)}/goods-receipt`), { method: "POST" });
+        showMessage(
+            `Wareneingang für Bestellung ${purchaseOrder} gebucht (Beleg ${result.materialDocument}): ` +
+            `+${formatNumber(result.quantity)} ${result.unit} ${result.material}.`,
+            "success"
+        );
+        await loadAll();
+    } catch (e) {
+        showMessage(e.message, "error");
+        button.disabled = false;
+    }
+});
+
+/** Stock, proposals and orders depend on each other, so they are always reloaded together. */
+function loadAll() {
+    return Promise.all([loadMedications(), loadOrders()]);
+}
+
 // ---------- Actions ----------
 
 async function consume(material, form) {
@@ -167,7 +273,7 @@ tbody.addEventListener("submit", async (event) => {
     button.disabled = true;
     try {
         await consume(material, form);
-        await loadMedications();
+        await loadAll();
     } catch (e) {
         showMessage(e.message, "error");
         button.disabled = false;
@@ -176,7 +282,7 @@ tbody.addEventListener("submit", async (event) => {
 
 document.getElementById("reload").addEventListener("click", () => {
     hideMessage();
-    loadMedications();
+    loadAll();
 });
 
 // Stations must be loaded first, the medications depend on the selected station
@@ -188,7 +294,7 @@ async function init() {
         showMessage(e.message, "error");
         return;
     }
-    loadMedications();
+    loadAll();
 }
 
 init();
