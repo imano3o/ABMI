@@ -15,7 +15,8 @@ wenn ein Medikament unter den Mindestbestand fällt.
 - Bucht den Wareneingang einer Bestellung (Bewegungsart 101); danach steigt der Bestand in SAP
 
 Der **aktuelle Bestand** und die **Bestellungen** kommen immer aus SAP. In der eigenen Datenbank (H2) stehen nur die
-**Stammdaten**: Krankenhaus, Stationen sowie pro Station und Medikament Mindestbestand, Zielbestand und Packungsgröße.
+**Stammdaten**: Krankenhaus, Stationen, die Namen der Medikamente (SAP liefert im Bestand nur die Materialnummer)
+sowie pro Station und Medikament Mindestbestand, Zielbestand und Packungsgröße.
 Lieferant, Buchungskreis und Einkaufsorganisation für Bestellungen stehen unter `sap.purchasing` in `application.yaml`.
 
 ## Aufbau

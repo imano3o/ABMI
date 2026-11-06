@@ -113,7 +113,7 @@ public class OrderService {
             MinimumStock settings = minimumStockRepository.findByStationAndMaterial(station, medication.material())
                     .orElse(null);
             if (settings == null) {
-                continue; // without a minimum the status is never below OK, but be safe
+                continue; // only configured medications get a proposal
             }
             BigDecimal open = openByMaterial.getOrDefault(medication.material(), BigDecimal.ZERO);
             BigDecimal proposed = calculateOrderQuantity(

@@ -69,6 +69,7 @@ aus den Stammdaten (`Station`, `MinimumStock`) und der Konfiguration (`applicati
 
 | Feld | Bedeutung |
 |---|---|
+| `name` | Anzeigename aus unserer Datenbank (SAP liefert im Bestand nur die Materialnummer) |
 | `stock` | aktueller Bestand aus SAP (Material Stock) |
 | `minimumStock` | Mindestbestand aus unserer Datenbank, `0` wenn keiner gepflegt ist |
 | `status` | `OK`, `LOW` (unter Mindestbestand) oder `CRITICAL` (leer oder unter der Hälfte des Mindestbestands), berechnet das Backend |

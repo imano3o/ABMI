@@ -1,4 +1,4 @@
--- Exactly one hospital. The name is a placeholder.
+-- Exactly one hospital.
 INSERT INTO hospital (plant, name) VALUES
     ('1710', 'Klinikum Musterstadt');
 
@@ -21,3 +21,18 @@ INSERT INTO minimum_stock (station, material, minimum_quantity, target_quantity,
     ('ST03', 'MED-ONDAN4',      10,  20,  5),
     ('ST03', 'MED-METAM500',    30,  60, 20),
     ('ST03', 'MED-NACL500',     20,  40, 10);
+
+-- Display names; SAP only knows the material number.
+INSERT INTO medication (material, name) VALUES
+    ('MED-AMOXI1000', 'Amoxicillin 1000 mg Tabletten'),
+    ('MED-ENOX40',    'Enoxaparin 40 mg Fertigspritze'),
+    ('MED-FUROS40',   'Furosemid 40 mg Tabletten'),
+    ('MED-HEP5000',   'Heparin 5.000 I.E. Ampullen'),
+    ('MED-IBU400',    'Ibuprofen 400 mg Tabletten'),
+    ('MED-INSACT',    'Insulin Actrapid 10 ml Durchstechflasche'),
+    ('MED-METAM500',  'Metamizol 500 mg Tabletten'),
+    ('MED-MORPH10',   'Morphin 10 mg Ampullen'),
+    ('MED-NACL500',   'NaCl 0,9 % 500 ml Infusion'),
+    ('MED-ONDAN4',    'Ondansetron 4 mg Ampullen'),
+    ('MED-PANTO40',   'Pantoprazol 40 mg Tabletten'),
+    ('MED-PCM500',    'Paracetamol 500 mg Tabletten');
