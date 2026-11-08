@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MediFlow</title>
-    <link rel="stylesheet" href="style.css?v=7">
+    <title>Mediflow</title>
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <header>
     <div>
-        <h1>MediFlow</h1>
+        <h1>Mediflow</h1>
         <p class="subtitle" id="hospital">Krankenhaus nicht hinterlegt</p>
     </div>
     <div class="header-actions">
@@ -40,7 +40,6 @@
         <div class="section-head">
             <div>
                 <h2>Bestellvorschläge</h2>
-                <p class="hint">Menge = Zielbestand − Bestand − bereits bestellt, aufgerundet auf volle Packungen</p>
             </div>
             <button id="place-orders" type="button">Alle Vorschläge bestellen</button>
         </div>
@@ -52,12 +51,11 @@
                 <th class="num">Ziel</th>
                 <th class="num">Bestellt</th>
                 <th class="num">Packung</th>
-                <th class="num">Vorschlag</th>
                 <th>Bestellen</th>
             </tr>
             </thead>
             <tbody id="proposals">
-            <tr><td colspan="7" class="empty">Lade Daten …</td></tr>
+            <tr><td colspan="6" class="empty">Lade Daten …</td></tr>
             </tbody>
         </table>
     </section>
@@ -82,6 +80,6 @@
     </section>
 </main>
 
-<script src="app.js?v=6"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

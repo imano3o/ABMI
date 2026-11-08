@@ -1,4 +1,4 @@
-// MediFlow frontend without a framework.
+// Mediflow frontend without a framework.
 // Talks only to our own REST API, never to SAP.
 
 const API = "/api/medications";
@@ -67,7 +67,7 @@ async function loadHospital() {
         const hospital = await request("/api/hospital");
         if (hospital.name) {
             document.getElementById("hospital").textContent = hospital.name;
-            document.title = `MediFlow – ${hospital.name}`;
+            document.title = `Mediflow – ${hospital.name}`;
         }
     } catch (e) {
         // Not critical: the default title stays
@@ -155,7 +155,7 @@ async function loadOrders() {
         renderProposals(proposals);
         renderOrders(orders);
     } catch (e) {
-        proposalsBody.innerHTML = `<tr><td colspan="7" class="empty">Keine Daten</td></tr>`;
+        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
         ordersBody.innerHTML = `<tr><td colspan="6" class="empty">Keine Daten</td></tr>`;
         showMessage(e.message, "error");
     }
@@ -164,7 +164,7 @@ async function loadOrders() {
 function renderProposals(proposals) {
     placeOrdersButton.disabled = !proposals.some((p) => p.proposedQuantity > 0);
     if (proposals.length === 0) {
-        proposalsBody.innerHTML = `<tr><td colspan="7" class="empty">Alle Bestände sind in Ordnung</td></tr>`;
+        proposalsBody.innerHTML = `<tr><td colspan="6" class="empty">Alle Bestände sind in Ordnung</td></tr>`;
         return;
     }
     proposalsBody.innerHTML = proposals.map((p) => `
@@ -175,9 +175,6 @@ function renderProposals(proposals) {
             <td class="num">${formatNumber(p.targetStock)}</td>
             <td class="num">${formatNumber(p.openOrderQuantity)}</td>
             <td class="num">${formatNumber(p.packageSize)}</td>
-            <td class="num"><strong>${p.proposedQuantity > 0
-                ? `${formatNumber(p.proposedQuantity)} ${escapeHtml(p.unit)}`
-                : "bereits bestellt"}</strong></td>
             <td>
                 <form data-action="order" data-material="${escapeHtml(p.material)}">
                     <!-- Prefilled with the proposal; the backend checks the rules again -->

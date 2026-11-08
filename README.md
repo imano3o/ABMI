@@ -1,4 +1,4 @@
-# ABMI – MediFlow
+# ABMI – Mediflow
 
 Backend und einfaches Frontend für die Medikamentenverwaltung auf Krankenhausstationen.
 Pflegekräfte sehen den Bestand ihrer Station, buchen Verbräuche direkt in SAP und bestellen nach,

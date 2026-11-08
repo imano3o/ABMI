@@ -1,4 +1,4 @@
-# MediFlow – REST-API (Frontend ↔ ABMI-Backend)
+# Mediflow – REST-API (Frontend ↔ ABMI-Backend)
 
 Basis-URL: `http://localhost:8080/api`
 
