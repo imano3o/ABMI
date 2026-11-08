@@ -1,4 +1,4 @@
--- Exactly one hospital. The name is a placeholder.
+-- Exactly one hospital.
 INSERT INTO hospital (plant, name) VALUES
     ('1710', 'Klinikum Musterstadt');
 

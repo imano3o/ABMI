@@ -41,12 +41,6 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_GATEWAY, "SAP is not reachable or returned an error.");
     }
 
-    /** Handles SAP functions that the mock does not support yet. */
-    @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<ErrorResponse> handleNotSupported(UnsupportedOperationException e) {
-        return error(HttpStatus.BAD_GATEWAY, "SAP does not support this function yet.");
-    }
-
     private ResponseEntity<ErrorResponse> error(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(new ErrorResponse(status.value(), message));
     }

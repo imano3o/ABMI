@@ -70,7 +70,7 @@ async function loadHospital() {
             document.title = `MediFlow – ${hospital.name}`;
         }
     } catch (e) {
-        // Not critical: the placeholder name stays
+        // Not critical: the default title stays
     }
 }
 
