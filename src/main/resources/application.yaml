@@ -13,3 +13,9 @@ spring:
 
 sap:
   base-url: http://localhost:8081
+  # Used for every purchase order; values as in the SAP sandbox (company code 1710)
+  purchasing:
+    supplier: "17300001"
+    company-code: "1710"
+    purchasing-organization: "1710"
+    purchasing-group: "001"

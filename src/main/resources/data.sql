@@ -7,15 +7,17 @@ INSERT INTO station (code, name, cost_center) VALUES
     ('ST02', 'Station 2 – Kardiologie',    '17101201'),
     ('ST03', 'Station 3 – Innere Medizin', '17101301');
 
-INSERT INTO minimum_stock (station, material, minimum_quantity) VALUES
-    ('ST01', 'MED-PCM500', 100),
-    ('ST01', 'MED-MORPH10', 20),
-    ('ST01', 'MED-AMOXI1000', 40),
-    ('ST01', 'MED-NACL500', 30),
-    ('ST02', 'MED-HEP5000', 40),
-    ('ST02', 'MED-FUROS40', 50),
-    ('ST02', 'MED-ENOX40', 15),
-    ('ST03', 'MED-ENOX40', 10),
-    ('ST03', 'MED-ONDAN4', 10),
-    ('ST03', 'MED-METAM500', 30),
-    ('ST03', 'MED-NACL500', 20);
+-- target_quantity: the order proposal refills up to this stock.
+-- package_size: orders are rounded up to whole packages (e.g. syringes come in 10s, tablets in 50s).
+INSERT INTO minimum_stock (station, material, minimum_quantity, target_quantity, package_size) VALUES
+    ('ST01', 'MED-PCM500',     100, 200, 50),
+    ('ST01', 'MED-MORPH10',     20,  40, 10),
+    ('ST01', 'MED-AMOXI1000',   40,  80, 20),
+    ('ST01', 'MED-NACL500',     30,  60, 10),
+    ('ST02', 'MED-HEP5000',     40,  80, 10),
+    ('ST02', 'MED-FUROS40',     50, 100, 50),
+    ('ST02', 'MED-ENOX40',      15,  30, 10),
+    ('ST03', 'MED-ENOX40',      10,  30, 10),
+    ('ST03', 'MED-ONDAN4',      10,  20,  5),
+    ('ST03', 'MED-METAM500',    30,  60, 20),
+    ('ST03', 'MED-NACL500',     20,  40, 10);

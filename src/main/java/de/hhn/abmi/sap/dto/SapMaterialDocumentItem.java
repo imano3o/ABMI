@@ -14,6 +14,8 @@ public record SapMaterialDocumentItem(
         @JsonProperty("GoodsMovementType") String goodsMovementType,
         @JsonProperty("QuantityInEntryUnit") String quantity,
         @JsonProperty("EntryUnit") String unit,
-        @JsonProperty("CostCenter") String costCenter
+        @JsonProperty("CostCenter") String costCenter,
+        @JsonProperty("PurchaseOrder") String purchaseOrder,           // goods receipt only
+        @JsonProperty("PurchaseOrderItem") String purchaseOrderItem    // goods receipt only
 ) {
 }
