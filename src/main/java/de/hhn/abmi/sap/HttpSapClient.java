@@ -70,7 +70,7 @@ public class HttpSapClient implements SapClient {
             // SapStock (SAP format) -> MaterialStock (our format); the quantity string becomes a number
             result.add(new MaterialStock(
                     sapStock.material(),
-                    sapStock.material(), // TODO: the mock returns no name, clarify with the team
+                    sapStock.material(), // SAP returns no name; MedicationService takes it from our master data
                     new BigDecimal(sapStock.quantity()),
                     sapStock.unit()
             ));

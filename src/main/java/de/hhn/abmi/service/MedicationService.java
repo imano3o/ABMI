@@ -8,6 +8,8 @@ import de.hhn.abmi.dto.api.MedicationResponse;
 import de.hhn.abmi.dto.api.MinimumStockResponse;
 import de.hhn.abmi.dto.api.StockStatus;
 import de.hhn.abmi.exception.ApiException;
+import de.hhn.abmi.model.Medication;
+import de.hhn.abmi.model.MedicationRepository;
 import de.hhn.abmi.model.MinimumStock;
 import de.hhn.abmi.model.MinimumStockRepository;
 import de.hhn.abmi.sap.SapClient;
@@ -21,18 +23,21 @@ import java.util.List;
 /**
  * Business logic for medications.
  *
- * <p>Combines the stock from SAP with the minimum stock from our database.
+ * <p>Combines the stock from SAP with the minimum stock and the names from our database.
  */
 @Service
 public class MedicationService {
     private final MinimumStockRepository minimumStockRepository;
+    private final MedicationRepository medicationRepository;
     private final SapClient sapClient;
     private final StationService stationService;
 
     public MedicationService(MinimumStockRepository minimumStockRepository,
+                             MedicationRepository medicationRepository,
                              SapClient sapClient,
                              StationService stationService) {
         this.minimumStockRepository = minimumStockRepository;
+        this.medicationRepository = medicationRepository;
         this.sapClient = sapClient;
         this.stationService = stationService;
     }
@@ -56,10 +61,10 @@ public class MedicationService {
 
             StockStatus status = calculateStatus(stock.quantity(), minimum);
 
-            // MaterialStock (SAP) + minimum stock (H2) + status -> MedicationResponse for the frontend
+            // MaterialStock (SAP) + name and minimum stock (H2) + status -> MedicationResponse for the frontend
             result.add(new MedicationResponse(
                     stock.material(),
-                    stock.name(),
+                    getName(stock.material()),
                     stock.quantity(),
                     stock.unit(),
                     minimum,
@@ -68,6 +73,13 @@ public class MedicationService {
         }
 
         return result;
+    }
+
+    /** Returns the display name, or the material number if none is configured. */
+    private String getName(String material) {
+        return medicationRepository.findById(material)
+                .map(Medication::getName)
+                .orElse(material);
     }
 
     /** Returns the minimum stock, or {@code 0} if none is configured. */
